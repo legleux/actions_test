@@ -1,0 +1,37 @@
+name: build
+inputs:
+  generator:
+    default: null
+  configuration:
+    required: true
+  cmake-args:
+    default: null
+  cmake-target:
+    default: all
+# An implicit input is the environment variable `build_dir`.
+runs:
+  using: composite
+  steps:
+    - name: add Ripple Conan remote
+      shell: bash
+      run: |
+        uv venv && . ./.venv/bin/activate
+        uv pip install conan
+        conan remote list
+        conan remote remove ripple || true
+        # Do not quote the URL. An empty string will be accepted (with
+        # a non-fatal warning), but a missing argument will not.
+        conan remote add ripple ${{ env.CONAN_URL }} --index 0
+    - name: try to authenticate to Ripple Conan remote
+      id: remote
+      shell: bash
+      run: |
+        # `conan user` implicitly uses the environment variables
+        # CONAN_LOGIN_USERNAME_<REMOTE> and CONAN_PASSWORD_<REMOTE>.
+        # https://docs.conan.io/1/reference/commands/misc/user.html#using-environment-variables
+        # https://docs.conan.io/1/reference/env_vars.html#conan-login-username-conan-login-username-remote-name
+        # https://docs.conan.io/1/reference/env_vars.html#conan-password-conan-password-remote-name
+        echo $CONAN_LOGIN_USERNAME_RIPPLE
+        echo $CONAN_PASSWORD_RIPPLE
+        echo outcome=$(conan user --remote ripple --password >&2 \
+          && echo success || echo failure) | tee ${GITHUB_OUTPUT}
