@@ -1,0 +1,35 @@
+name: Test workflow variables
+env:
+  WORKFLOW_VAR: "Cool"
+
+on:
+  push:
+    branches:
+    - test_workflow_variables
+  workflow_dispatch:
+    inputs:
+      deafult_workflow_variable:
+        description: 'The workflow variable'
+        default: "A"
+        required: true
+        type: string
+
+jobs:
+  run_workflow:
+    runs-on: [ubuntu-latest]
+    # runs-on: [self-hosted, heavy]
+    env:
+      JOB_VAR: "Beans"
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: Check variables
+        run: |
+            echo "JOB_VAR as normal env var: ${JOB_VAR}"
+            echo "JOB_VAR as github context var: ${{ env.JOB_VAR }}"
+            echo "WORKFLOW_VAR as normal env var: ${WORKFLOW_VAR}"
+            echo "WORKFLOW_VAR as github context var: ${{ env.WORKFLOW_VAR }}"
