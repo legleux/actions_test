@@ -1,7 +1,4 @@
-FROM debian:trixie-slim
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
-WORKDIR /app
-COPY . .
-RUN uv venv
-EXPOSE 5000
-CMD ["uv", "run", "app.py"]
+FROM python:3.11
+
+COPY script.py script
+CMD [ "python", "script.py" ]

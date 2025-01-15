@@ -1,0 +1,42 @@
+name: Run rippled network
+
+on:
+  push:
+      branches: [run_rippled_net]
+
+jobs:
+  xrpl_test_net:
+    name: "Run XRPL testnet"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Start network
+        run: |
+          docker compose up -d
+      - name: Start tunnels
+        env:
+          tmole_api_key: ${{ secrets.TMOLE_API_KEY }}
+        run: |
+          url="legleux.tunnelmole.net"
+          sudo apt-get install -y jq
+          docker exec actions_test-rippled-1 bash -c "apt-get update &&  apt-get install -y curl"
+          docker exec actions_test-rippled-1 bash -c "curl -O https://install.tunnelmole.com/n3d5g/install && bash install"
+          docker exec actions_test-rippled-1 bash -c "tmole --set-api-key ${tmole_api_key}"
+          docker exec --detach actions_test-rippled-1 bash -c "tmole 5005 as $url"
+          echo "rippled running at ${url}"
+          sleep 10
+          wait_time=5
+          while ! [[ "$(curl -s "$url" -sd'{"method": "server_info"}' | jq -r '.result.info.server_state')" == "full" && \
+                     "$(curl -s "$url" -sd'{"method": "server_info"}' | jq -r '.result.info.complete_ledgers')" =~ ^[0-9]+-[0-9]+$ ]]; do
+              echo "Waiting ${wait_time}s for rippled"
+              sleep $wait_time
+          done
+          echo "rippled synced!"
+          echo "Complete ledgers: $complete_ledgers"
+          curl $url -sd'{"method": "server_info"}' | jq .result.info
+
+      - name: Stop network
+        run: |
+          echo "Times up, killing network"
+          docker compose down

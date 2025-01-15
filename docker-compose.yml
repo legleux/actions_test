@@ -1,7 +1,112 @@
+
 services:
-  cat_app:
-    container_name: cat_app
-    image: cat_app
-    build: .
+  unl:
+    image: python:3.11
+    hostname: unl
+    # container_name: unl
+    volumes:
+      - ./config/unl/index.html:/www/index.html
+    command: ["python", "-m", "http.server", "80", "--directory", "/www"]
+    networks:
+      rippled-net:
+
+  rippled:
+    hostname: rippled
+    image: $IMAGE
+    # container_name: rippled
+    entrypoint: ["entrypoint.sh"]
+    volumes:
+        - ./config/rippled/:/etc/opt/ripple
+    healthcheck:
+      test: ["CMD", "/etc/opt/ripple/rippled_health.sh"]
+      interval: 20s
+      timeout: 5m
+      retries: 5
+      start_period: 30s
+    depends_on:
+      val0:
+        condition: service_healthy
     ports:
-      - 127.0.0.1:5000:5000
+      - 0.0.0.0:5005:5005
+      - 0.0.0.0:6006:6006
+    networks:
+      rippled-net:
+
+  val0:
+    hostname: val0
+    image: $IMAGE
+    # container_name: val0
+    volumes:
+        - ./config/val0:/etc/opt/ripple/
+    # command: ["/opt/ripple/bin/rippled", "--start"]
+    # command: ["stat", "/opt/ripple/bin/rippled"]
+    entrypoint: ["entrypoint.sh"]
+    healthcheck:
+      test: ["CMD", "/opt/ripple/bin/rippled", "server_info"]
+      interval: 20s
+      timeout: 1m
+      retries: 5
+      start_period: 5s
+    networks:
+      rippled-net:
+    depends_on:
+      unl:
+        condition: service_started
+
+  val1:
+    hostname: val1
+    image: $IMAGE
+    # container_name: val1
+    volumes:
+        - ./config/val1:/etc/opt/ripple
+    # command: ["/opt/ripple/bin/rippled"]
+    entrypoint: ["entrypoint.sh"]
+    depends_on:
+      val0:
+        condition: service_healthy
+    networks:
+      rippled-net:
+
+  val2:
+    hostname: val2
+    image: $IMAGE
+    # container_name: val2
+    volumes:
+        - ./config/val2:/etc/opt/ripple
+    entrypoint: ["entrypoint.sh"]
+    depends_on:
+      val0:
+        condition: service_healthy
+    networks:
+      rippled-net:
+
+  val3:
+    hostname: val3
+    image: $IMAGE
+    # container_name: val3
+    volumes:
+        - ./config/val3:/etc/opt/ripple
+    entrypoint: ["entrypoint.sh"]
+    depends_on:
+      val0:
+        condition: service_healthy
+    networks:
+      rippled-net:
+
+  val4:
+    hostname: val4
+    image: $IMAGE
+    # container_name: val4
+    volumes:
+        - ./config/val4:/etc/opt/ripple
+    # command: ["/opt/ripple/bin/rippled"]
+    entrypoint: ["entrypoint.sh"]
+    depends_on:
+      val0:
+        condition: service_healthy
+    networks:
+      rippled-net:
+
+networks:
+  rippled-net:
+    # name: rippled-net
