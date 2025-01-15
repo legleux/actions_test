@@ -6,7 +6,7 @@ on:
 
 jobs:
     deploy:
-        name: Deploy
+        name: Run cat-app
         runs-on: ubuntu-latest
 
         steps:
@@ -21,8 +21,21 @@ jobs:
               run: |
                   echo ${{ steps.ip.outputs.ipv4 }}
 
-            - name: Run app
+
+            - name: Run app with docker
               run: |
                 docker build -t cat_app .
                 docker run --rm --detach --name cat_app --publish 5000:5000 cat_app
-                sleep 180 && docker kill cat_app
+                curl -O https://install.tunnelmole.com/n3d5g/install && bash install
+                tmole 5000 &
+                sleep 30
+                echo "Times up, killing cat_app"
+                docker kill cat_app
+
+            # - name: Run app with compose
+            #   run: |
+            #     docker compose up -d
+            #     curl 127.0.0.1:5000
+            #     sleep 20
+            #     echo "Times up, killing cat_app"
+            #     docker compose down

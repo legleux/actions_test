@@ -1,0 +1,7 @@
+services:
+  cat_app:
+    container_name: cat_app
+    image: cat_app
+    build: .
+    ports:
+      - 127.0.0.1:5000:5000

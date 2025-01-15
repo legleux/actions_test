@@ -1,0 +1,10 @@
+name: runit
+description: runs it
+runs:
+  using: docker
+  image: Dockerfile
+inputs:
+  some_variable:
+    description: "A variable I'll use"
+    required: false
+    default: "neato"
