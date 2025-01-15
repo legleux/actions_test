@@ -1,0 +1,28 @@
+name: Get Runner IP Addresses
+
+on:
+    push:
+        branches: [test_get_public_ip]
+
+jobs:
+    deploy:
+        name: Deploy
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Check out code
+              uses: actions/checkout@v4
+
+            - name: Get IP Addresses
+              id: ip
+              uses: candidob/get-runner-ip@v1.0.0
+
+            - name: See IP Addresses
+              run: |
+                  echo ${{ steps.ip.outputs.ipv4 }}
+
+            - name: Run app
+              run: |
+                docker build -t cat_app .
+                docker run --rm --detach --name cat_app --publish 5000:5000 cat_app
+                sleep 180 && docker kill cat_app

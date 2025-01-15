@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+      <meta charset="UTF-8">
+      <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+      <link rel="stylesheet" href="static/styles.css">
+      <!-- <link rel="stylesheet" href="{{ url_for('static', filename= 'styles.css') }}"> -->
+      <!-- <link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>      <link rel="stylesheet" href="static/styles.css"> -->
+      <script type="text/javascript" src="static/client.js" async></script>
+      <title>Hello from rippled</title>
+   </head>
+
+   <body>
+      <h1>Welcome to the machine!</h1>
+      <hr />
+      <div id="content">
+         <p>This is my web page. There are many like it but this one is mine.</p>
+         <!-- <form> -->
+            <button id="cat-button">
+               <span class="button-text">Click me!</span>
+            </button>
+         <!-- </form> -->
+      </div>
+       {% if person %}
+         <h1 id="cool">Hello {{ person }}!</h1>
+       {% else %}
+         <h1>Hello, World!</h1>
+       {% endif %}
+   </body>
+</html>
