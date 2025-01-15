@@ -26,7 +26,7 @@ jobs:
           docker exec --detach actions_test-rippled-1 bash -c "tmole 5005 as $url"
           echo "rippled running at ${url}"
           sleep 10
-          wait_time=5
+          wait_time=10
           while ! [[ "$(curl -s "$url" -sd'{"method": "server_info"}' | jq -r '.result.info.server_state')" == "full" && \
                      "$(curl -s "$url" -sd'{"method": "server_info"}' | jq -r '.result.info.complete_ledgers')" =~ ^[0-9]+-[0-9]+$ ]]; do
               echo "Waiting ${wait_time}s for rippled"
