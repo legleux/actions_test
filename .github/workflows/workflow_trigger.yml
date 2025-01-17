@@ -18,7 +18,7 @@ jobs:
           - macOS
           - Windows
 
-    uses: ./.github/workflows/base_workflow.yml@main
+    uses: ./.github/workflows/base_workflow.yml
     with:
       config-path: .github/labeler.yml
       os: ${{ matrix.os }}
