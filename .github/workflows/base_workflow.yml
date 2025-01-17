@@ -7,6 +7,10 @@ on:
       os:
         required: true
         type: string
+      cmake:
+        required: false
+        type: string
+        default: null
 
     secrets:
       SECRET_2:
@@ -28,6 +32,6 @@ jobs:
     - name: Os message
       run: echo "I should run on ${{ inputs.os }}"
       # run: echo "I should run on a specific os"
-    - name: "${{ inputs.os }} Specific step"
+    - name: macOS Specific step"
       if: inputs.os == 'macOS'
-      run: echo "I have the cmake_flags ${{ matrix.cmake_flags.cool_flag }}"
+      run: echo "I have the cmake_flags ${{ inputs.cmake }}"
