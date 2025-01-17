@@ -4,6 +4,9 @@ on:
       config-path:
         required: true
         type: string
+      # os:
+      #   required: true
+      #   type: string
 
     secrets:
       personal_access_token:
@@ -17,3 +20,5 @@ jobs:
       with:
         repo-token: ${{ secrets.personal_access_token }}
         configuration-path: ${{ inputs.config-path }}
+    - name: Os message
+      run: echo "I should run on ${{ matrix.os }}"
