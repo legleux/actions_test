@@ -1,0 +1,9 @@
+WTF:
+- changed-files:
+  - any-glob-to-any-file: 'src/watched/*'
+cool:
+- changed-files:
+  - any-glob-to-any-file: '**'
+cool_src:
+- changed-files:
+  - any-glob-to-any-file: 'src/watched/*'

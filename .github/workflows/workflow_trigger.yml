@@ -1,0 +1,44 @@
+name: Main workflow
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+jobs:
+  build:
+    name: ${{ matrix.os }} ${{ matrix.compiler }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # compiler:
+        #   - {cpp: g++, c: gcc}
+        #   - {cpp: g++-11, c: gcc-11}
+        #   - {cpp: clang++, c: clang}
+        os:
+          - Linux
+          - macOS
+          - Windows
+        include:
+          - os: Windows
+            more_values: "true"
+          - os: Linux
+
+          - os: macOS
+            cmake_flags: "neat"
+    uses: ./.github/workflows/base_workflow.yml
+    with:
+      config-path: .github/labeler.yml
+      os: ${{ matrix.os }}
+      cmake: ${{ matrix.cmake_flags }}
+    secrets: inherit
+
+  # wf_trigger_test:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
+  #     - name: Do the thing
+  #       run: |
+  #           echo "Am running"

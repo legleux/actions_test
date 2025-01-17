@@ -1,0 +1,36 @@
+on:
+  workflow_call:
+    inputs:
+      config-path:
+        required: true
+        type: string
+      os:
+        required: true
+        type: string
+      cmake:
+        required: false
+        type: string
+        default: null
+
+    secrets:
+      SECRET_2:
+        required: true
+
+jobs:
+  reusable_workflow_job:
+    permissions:
+      contents: read
+      pull-requests: write
+    name: "${{ inputs.os }} run"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/labeler@v5
+      with:
+        configuration-path: ${{ inputs.config-path }}
+    - name: Os message
+      run: echo "I should run on ${{ inputs.os }}"
+
+    - name: macOS Specific step"
+      if: inputs.os == 'macOS'
+      run: echo "I have the cmake_flags ${{ inputs.cmake }}"
