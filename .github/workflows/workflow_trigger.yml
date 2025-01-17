@@ -11,6 +11,7 @@ on:
 jobs:
   call-workflow-passing-data:
     strategy:
+      fail-fast: false
       matrix:
         os:
           - Linux

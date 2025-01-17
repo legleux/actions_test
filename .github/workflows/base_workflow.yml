@@ -9,7 +9,7 @@ on:
         type: string
 
     secrets:
-      personal_access_token:
+      SECRET_2:
         required: true
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
     steps:
     - uses: actions/labeler@v5
       with:
-        repo-token: ${{ secrets.personal_access_token }}
+        repo-token: ${{ secrets.SECRET_2 }}
         configuration-path: ${{ inputs.config-path }}
     - name: Os message
       run: echo "I should run on ${{ inputs.os }}"
