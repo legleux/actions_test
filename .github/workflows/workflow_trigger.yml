@@ -25,12 +25,12 @@ jobs:
           - os: Linux
             compiler: [ {cpp: g++, c: gcc}, {cpp: g++-8, c: gcc-8}, {cpp: clang++, c: clang} ]
           - os: macOS
-            cmake_flags:
-              - cmake_flags: "-Dmacos=ON"
+            cmake_flags: "neat"
     uses: ./.github/workflows/base_workflow.yml
     with:
       config-path: .github/labeler.yml
       os: ${{ matrix.os }}
+      cmake: ${{ matrix.cmake_flags }}
     secrets: inherit
 
   # wf_trigger_test:
