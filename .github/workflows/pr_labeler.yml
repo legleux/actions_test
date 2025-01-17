@@ -1,6 +1,8 @@
 name: "Label Previous Pull Requests"
 on:
   push:
+  pull_request:
+  pull_request_target:
 
 jobs:
   labeler:
@@ -14,5 +16,6 @@ jobs:
     # Label PRs 1, 2, and 3
     - uses: actions/labeler@v5
       with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
         pr-number: |
           1
