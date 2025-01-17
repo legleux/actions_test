@@ -12,6 +12,7 @@ on:
 
 jobs:
   build:
+    name: ${{ matrix.os }} ${{ matrix.compiler }}
     strategy:
       fail-fast: false
       matrix:
