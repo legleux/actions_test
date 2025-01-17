@@ -12,15 +12,22 @@ jobs:
   call-workflow-passing-data:
     strategy:
       matrix:
-        the_os:
+        os:
           - Linux
           - macOS
           - Windows
-
+        include:
+          - os: Windows
+            more_values: "true"
+          - os: Linux
+            compiler: [ {cpp: g++, c: gcc}, {cpp: g++-8, c: gcc-8}, {cpp: clang++, c: clang} ]
+          - os: macOS
+            cmake_flags:
+              - cmake_flags: "-Dmacos=ON"
     uses: ./.github/workflows/base_workflow.yml
     with:
       config-path: .github/labeler.yml
-      os: ${{ matrix.the_os }}
+      os: ${{ matrix.os }}
     secrets: inherit
 
   # wf_trigger_test:
