@@ -14,6 +14,7 @@ on:
 
 jobs:
   reusable_workflow_job:
+    name: "${{ inputs.os }} run"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/labeler@v5
