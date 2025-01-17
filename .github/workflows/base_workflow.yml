@@ -29,5 +29,5 @@ jobs:
       run: echo "I should run on ${{ inputs.os }}"
       # run: echo "I should run on a specific os"
     - name: "${{ inputs.os }} Specific step"
-      if: ${{ inputs.os }} == "macos"
+      if: inputs.os == 'macOS'
       run: echo "I have the cmake_flags ${{ matrix.cmake_flags.cool_flag }}"
