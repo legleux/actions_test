@@ -1,6 +1,6 @@
-AnyChange:
+cool:
 - changed-files:
   - any-glob-to-any-file: '**'
-cool_change_bro:
+cool_src:
 - changed-files:
   - any-glob-to-any-file: 'src/watched/*'
