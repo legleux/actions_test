@@ -1,5 +1,7 @@
 on:
   pull_request:
+    types:
+      - opened
   workflow_call:
     inputs:
       config-path:
