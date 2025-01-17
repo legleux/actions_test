@@ -8,8 +8,10 @@ on:
     types:
       - opened
       - reopened
+  pull_request_target:
+
 jobs:
-  call-workflow-passing-data:
+  build:
     strategy:
       fail-fast: false
       matrix:
