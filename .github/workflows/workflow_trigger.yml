@@ -21,7 +21,7 @@ jobs:
     uses: ./.github/workflows/base_workflow.yml
     with:
       config-path: .github/labeler.yml
-      # os: ${{ matrix.os }}
+      os: "this one"
     secrets: inherit
       # personal_access_token: ${{ secrets.token }}
 
