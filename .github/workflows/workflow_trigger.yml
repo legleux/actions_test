@@ -8,7 +8,7 @@ on:
     types:
       - opened
       - reopened
-  pull_request_target:
+  pull_request:
 
 jobs:
   build:
