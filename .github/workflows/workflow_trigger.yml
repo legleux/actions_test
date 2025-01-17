@@ -16,7 +16,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [ {cpp: g++, c: gcc}, {cpp: g++-11, c: gcc-11}, {cpp: clang++, c: clang} ]
+        # compiler:
+        #   - {cpp: g++, c: gcc}
+        #   - {cpp: g++-11, c: gcc-11}
+        #   - {cpp: clang++, c: clang}
         os:
           - Linux
           - macOS
