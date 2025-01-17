@@ -1,0 +1,35 @@
+name: Main workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - reopened
+
+jobs:
+  call-workflow-passing-data:
+    strategy:
+      matrix:
+        os:
+          - Linux
+          - macOS
+          - Windows
+
+    uses: ./.github/workflows/base_workflow.yml@main
+    with:
+      config-path: .github/labeler.yml
+      os: ${{ matrix.os }}
+    secrets: inherit
+      # personal_access_token: ${{ secrets.token }}
+
+  # wf_trigger_test:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
+  #     - name: Do the thing
+  #       run: |
+  #           echo "Am running"

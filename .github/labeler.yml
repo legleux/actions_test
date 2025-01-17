@@ -1,0 +1,3 @@
+cool_change_bro:
+- changed-files:
+  - any-glob-to-any-file: 'src/watched/*'
