@@ -8,7 +8,6 @@ on:
     types:
       - opened
       - reopened
-
 jobs:
   call-workflow-passing-data:
     strategy:
@@ -23,7 +22,6 @@ jobs:
       config-path: .github/labeler.yml
       os: ${{ matrix.the_os }}
     secrets: inherit
-      # personal_access_token: ${{ secrets.token }}
 
   # wf_trigger_test:
   #   runs-on: ubuntu-latest
