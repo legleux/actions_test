@@ -13,7 +13,7 @@ jobs:
   call-workflow-passing-data:
     strategy:
       matrix:
-        os:
+        the_os:
           - Linux
           - macOS
           - Windows
@@ -21,7 +21,7 @@ jobs:
     uses: ./.github/workflows/base_workflow.yml
     with:
       config-path: .github/labeler.yml
-      # os: "this one"
+      os: ${{ matrix.the_os }}
     secrets: inherit
       # personal_access_token: ${{ secrets.token }}
 
