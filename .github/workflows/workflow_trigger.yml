@@ -15,6 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        compiler: [ {cpp: g++, c: gcc}, {cpp: g++-11, c: gcc-11}, {cpp: clang++, c: clang} ]
         os:
           - Linux
           - macOS
@@ -23,7 +24,7 @@ jobs:
           - os: Windows
             more_values: "true"
           - os: Linux
-            compiler: [ {cpp: g++, c: gcc}, {cpp: g++-8, c: gcc-8}, {cpp: clang++, c: clang} ]
+
           - os: macOS
             cmake_flags: "neat"
     uses: ./.github/workflows/base_workflow.yml
