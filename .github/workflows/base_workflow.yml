@@ -23,8 +23,8 @@ jobs:
     - uses: actions/checkout@v4
     - uses: actions/labeler@v5
       with:
-        repo-token: ${{ secrets.SECRET_2 }}
         configuration-path: ${{ inputs.config-path }}
+        # repo-token: ${{ secrets.SECRET_2 }}
     - name: Os message
       run: echo "I should run on ${{ inputs.os }}"
       # run: echo "I should run on a specific os"
