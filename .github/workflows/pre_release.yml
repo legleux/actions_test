@@ -8,14 +8,14 @@ on:
 # pull_request:
 
 jobs:
-  create-release:
+  prerelease:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Test rippled sync
         run: |
             ls -lah
-            echo (realpath $PWD)
+            echo $(realpath $PWD)
             find . -name "rippled"
             ./rippled --version
             ./rippled --conf ./cfg/devnet/rippled.cfg
