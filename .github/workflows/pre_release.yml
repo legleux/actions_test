@@ -18,7 +18,9 @@ jobs:
             echo $(realpath $PWD)
             find . -name "rippled"
             ./rippled --version
-            ./rippled --conf ./cfg/devnet/rippled.cfg
+            ./rippled --silent --conf ./cfg/devnet/rippled.cfg &> >/dev/null &
+            sleep 10
+            ./rippled --conf ./cfg/devnet/rippled.cfg server_info | grep "complete_ledgers"
 
     #   - uses: taiki-e/create-gh-release-action@v1
     #     with:
