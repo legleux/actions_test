@@ -15,6 +15,7 @@ jobs:
       - name: Test rippled sync
         run: |
             ls -lah
+            echo (realpath $PWD)
             find . -name "rippled"
             ./rippled --version
             ./rippled --conf ./cfg/devnet/rippled.cfg
