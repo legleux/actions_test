@@ -46,10 +46,7 @@ jobs:
       - name: Build and push the image
         run : |
           set -ex
-          docker login \
-            --username ${{ github.repository_owner }} \
-            --password-stdin ${{ secrets.GITHUB_TOKEN }} \
-            ghcr.io
+          docker login --username ${{ github.repository_owner }} --password-stdin ${{ secrets.GITHUB_TOKEN }} ghcr.io
           docker build . \
             --tag ghcr.io/${{ env.image_name }}:${{ env.tags }}
           docker push ghcr.io/${{ env.image_name }}:${{ env.tags }}
