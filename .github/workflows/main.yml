@@ -43,7 +43,7 @@ jobs:
           set -ex
           echo ${{ github.repository }}
           echo ${{ github.repository_owner }}
-          curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }} https://ghcr.io/v2/${{ env.image_name }}/tags/list
+          curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://ghcr.io/v2/${{ env.image_name }}/tags/list
           # curl -H "Authorization: Bearer ${GH_TOKEN}" https://ghcr.io/v2/${{ env.image_name }}/tags/list
 
           # docker pull ghcr.io/NAMESPACE/${{ env.image_name }}:${{ env.tags }}
