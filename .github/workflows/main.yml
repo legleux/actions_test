@@ -9,7 +9,7 @@ on:
 jobs:
   build_docker_image:
     env:
-      image_name: "test_image"
+      image_name: "${{ github.repository_owner }}/test_image"
       tags: testes
     outputs:
       build_workload: ${{ steps.workload_image_built.outputs.build_needed }}
@@ -43,7 +43,9 @@ jobs:
           set -ex
           echo ${{ github.repository }}
           echo ${{ github.repository_owner }}
-          curl -H "Authorization: Bearer ${GH_TOKEN}" https://ghcr.io/v2/legleux/${{ env.image_name }}/tags/list
+          curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }} https://ghcr.io/v2/${{ env.image_name }}/tags/list
+          # curl -H "Authorization: Bearer ${GH_TOKEN}" https://ghcr.io/v2/${{ env.image_name }}/tags/list
+
           # docker pull ghcr.io/NAMESPACE/${{ env.image_name }}:${{ env.tags }}
           build_needed=1
           echo "build_needed=${build_needed}" >> $GITHUB_OUTPUT
@@ -59,6 +61,12 @@ jobs:
         if: ${{ ! steps.workload_image_built.build_needed }}
         run: |
           echo "We DON'T need to build"
+
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
       # - name: Build and export
       #   uses: docker/build-push-action@v6
       #   with:
