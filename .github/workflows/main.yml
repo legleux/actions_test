@@ -6,7 +6,11 @@ jobs:
     name: A job to say hello
     steps:
       - uses: actions/checkout@v4
+        with:
+          repository: legleux/actions_test
       - run: tree -a
+      - run: find . -name "action.yml"
+      - run: realpath $(find . -name "action.yml")
 
       - id: foo
         uses: ./.github/actions/action.yml
