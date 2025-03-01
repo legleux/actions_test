@@ -1,101 +1,18 @@
-name: Main workflow
-
-on:
-  push:
-
-# permissions:
-#   contents: write
+on: [push]
 
 jobs:
-  build_docker_image:
-    env:
-      image_name: "${{ github.repository_owner }}/test_image"
-      tags: testes
-    outputs:
-      build_workload: ${{ steps.workload_image_built.outputs.build_needed }}
-      # build_rippled: ${{ steps.rippled.test }}
+  hello_world_job:
     runs-on: ubuntu-latest
+    name: A job to say hello
     steps:
-      # - name: Login to Docker Hub
-      #   uses: docker/login-action@v3
-      #   with:
-      #     # username: ${{ vars.DOCKERHUB_USERNAME }}
-      #     username: ${{ github.repository_owner }}
-      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      # - name: Set up QEMU
-      #   uses: docker/setup-qemu-action@v3
-
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v3
-
-      # - name: Build and push
-      #   uses: docker/build-push-action@v6
-      #   with:
-      #     push: true
-      #     tags: legleux/app:latest
-
-      # - name: 'Login to GitHub Container Registry'
-      #   uses: docker/login-action@v1
-      #   with:
-      #     registry: ghcr.io
-      #     username: ${{github.actor}}
-      #     password: ${{secrets.GITHUB_TOKEN}}
-
       - uses: actions/checkout@v3
-      - name: Build and push the image
-        run : |
-          set -ex
-          echo ${{ secrets.GITHUB_TOKEN }} | \
-            docker login \
-              --username ${{ github.repository_owner }} \
-              --password-stdin \
-              ghcr.io
-          docker build . \
-            --tag ghcr.io/${{ env.image_name }}:${{ env.tags }}
-          docker push ghcr.io/${{ env.image_name }}:${{ env.tags }}
 
-      - name: Check if image present
-        id: workload_image_built
+      - id: foo
+        uses: ./.github/actions/action.yml
+        with:
+          who-to-greet: 'Mona the Octocat'
 
+      - run: echo random-number "$RANDOM_NUMBER"
+        shell: bash
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -ex
-          echo ${{ github.repository }}
-          echo ${{ github.repository_owner }}
-          curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://ghcr.io/v2/${{ env.image_name }}/tags/list
-          # curl -H "Authorization: Bearer ${GH_TOKEN}" https://ghcr.io/v2/${{ env.image_name }}/tags/list
-
-          # docker pull ghcr.io/NAMESPACE/${{ env.image_name }}:${{ env.tags }}
-          build_needed=1
-          echo "build_needed=${build_needed}" >> $GITHUB_OUTPUT
-
-      - name: Condition if build needed
-        id: build_needed
-        if: ${{ steps.workload_image_built.build_needed }}
-        run: |
-          echo "We need to build"
-
-      - name: Condition if build not needed
-        id: no_build_needed
-        if: ${{ ! steps.workload_image_built.build_needed }}
-        run: |
-          echo "We DON'T need to build"
-
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJSON(github) }}
-        run: echo "$GITHUB_CONTEXT"
-
-      # - name: Build and export
-      #   uses: docker/build-push-action@v6
-      #   with:
-      #     tags: ${{ env.tags }}
-      #     outputs: type=docker,dest=${{ runner.temp }}/${{ env.image_name }}.tar
-
-      # - name: Upload artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: ${{ env.image_name }}
-      #     path: ${{ runner.temp }}/${{ env.image_name }}.tar
+          RANDOM_NUMBER: ${{ steps.foo.outputs.random-number }}
