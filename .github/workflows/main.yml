@@ -6,7 +6,7 @@ jobs:
     name: A job to say hello
     steps:
       - uses: actions/checkout@v4
-      - run: tree
+      - run: tree -a
 
       - id: foo
         uses: ./.github/actions/action.yml
