@@ -1,7 +1,7 @@
 on: [push]
 
 jobs:
-  hello_world_job:
+  build:
     name: ${{ matrix.platform }}-${{ matrix.compiler }}-${{ matrix.configuration }}
     strategy:
       fail-fast: false
@@ -13,9 +13,10 @@ jobs:
           - clang
         configuration:
           - Debug
-          - Release'
+          - Release
 
     runs-on: ubuntu-latest
+    container: python:3-slim
     steps:
       - uses: actions/checkout@v4
       - run: echo "cool"
