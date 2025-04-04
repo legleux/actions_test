@@ -5,7 +5,7 @@ on:
   #     - test
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}image
+  IMAGE_NAME: ${{ github.repository }}_image
 jobs:
   create_builder_image:
     name: Building ${{ matrix.compiler }} builder
@@ -15,7 +15,7 @@ jobs:
         compiler:
           - gcc-12
           # - gcc-13
-          # - clang-16
+          - clang-16
           # - clang-18
     env:
       SCRIPT_NAME: the_${{ matrix.compiler }}_script.sh
