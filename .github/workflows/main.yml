@@ -65,13 +65,15 @@ jobs:
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: rippled_${{ matrix.compiler }}_builder
-      - uses: actions/checkout@v4
-        with:
-          # Repository name with owner. For example, actions/checkout
-          # Default: ${{ github.repository }}
-          repository: "XRPLF/rippled"
-          path: "./rippled_src"
+          images: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      # - uses: actions/checkout@v4
+      #   with:
+      #     # Repository name with owner. For example, actions/checkout
+      #     # Default: ${{ github.repository }}
+      #     repository: "XRPLF/rippled"
+      #     path: "./rippled_src"
 
       - name: Build and push Docker image
         id: push

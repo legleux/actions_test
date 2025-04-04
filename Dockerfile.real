@@ -1,7 +1,7 @@
 ARG DISTRO=debian:bookworm
 FROM $DISTRO AS base
 # FROM debian:12-slim AS base
-SHELL ["/bin/bash", "-c"]
+# SHELL ["/bin/bash", "-c"]
 ENV DEBIAN_FRONTEND=noninteractive
 # Latest 4.0.0
 # Debian
@@ -13,6 +13,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 #   noble 3.28.3 # latest
 #   oracular 3.30.3 # rolling
 #   plucky devel
+
 ARG compiler=gcc
 ARG compiler_version=12
 ARG build_type=Release
@@ -106,10 +107,10 @@ compiler.cppstd=20
 tools.cmake.cmaketoolchain:generator="${cmake_generator}"
 EOF
 
-ARG rippled_src="rippled_src"
-ENV RIPPLED_SRC="/root/${rippled_src}"
-ENV BUILD_DIR="/root/build"
-COPY "${rippled_src}" "${RIPPLED_SRC}"
+# ARG rippled_src="rippled_src"
+# ENV RIPPLED_SRC="/root/${rippled_src}"
+# ENV BUILD_DIR="/root/build"
+# COPY "${rippled_src}" "${RIPPLED_SRC}"
 
 # Build the dependencies
 # RUN <<EOF
