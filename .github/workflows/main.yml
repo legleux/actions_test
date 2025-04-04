@@ -1,21 +1,77 @@
-on: [push]
-
+on:
+  push:
+  # repository_dispatch:
+  #   types:
+  #     - test
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}image
 jobs:
-  hello_world_job:
-    name: ${{ matrix.platform }}-${{ matrix.compiler }}-${{ matrix.configuration }}
+  create_builder_image:
+    name: Building ${{ matrix.compiler }} builder
     strategy:
       fail-fast: false
       matrix:
-        platform:
-          - linux
         compiler:
-          - gcc
-          - clang
-        configuration:
-          - Debug
-          - Release'
+          - gcc-12
+          # - gcc-13
+          # - clang-16
+          # - clang-18
+    env:
+      SCRIPT_NAME: the_${{ matrix.compiler }}_script.sh
 
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
-      - run: echo "cool"
+
+      # - run: echo -e "#!/usr/bin\necho 'cool script bro' ${{ matrix.compiler }}" > "${SCRIPT_NAME}"
+
+      # - name: Run script with action
+      #   id: script_run
+      #   uses: ./.github/actions/build_image
+      #   with:
+      #     compiler: ${{ matrix.compiler }}
+      #     # compiler_version: ${{ matrix.version }}
+
+      # - uses: actions/upload-artifact@v4
+      #   with:
+      #     name: my_${{ matrix.compiler }}_artifact
+      #     path: the_${{ matrix.compiler }}_script.sh
+      #     if-no-files-found: error
+      # - name: Find script
+      #   shell: bash
+      #   run: |
+      #     set -ex
+      #     script_path=$(find . -name "${SCRIPT_NAME}")
+      #     echo "found it @ ${script_path}"
+
+      # - uses: actions/download-artifact@v4
+      #   with:
+      #     name: my_${{ matrix.compiler }}_artifact
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
