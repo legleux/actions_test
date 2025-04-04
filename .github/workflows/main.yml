@@ -67,7 +67,7 @@ jobs:
         with:
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-            name=mine,enable=true
+            name=${{ matrix.compiler }},enable=true
 
       # - uses: actions/checkout@v4
       #   with:
