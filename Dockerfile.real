@@ -1,0 +1,136 @@
+ARG DISTRO=debian:bookworm
+FROM $DISTRO AS base
+# FROM debian:12-slim AS base
+SHELL ["/bin/bash", "-c"]
+ENV DEBIAN_FRONTEND=noninteractive
+# Latest 4.0.0
+# Debian
+#   bookworm 3.25.2
+#   trixie 3.31.6
+#   sid 3.31.6
+# Ubuntu
+#   jammy 3.22.1
+#   noble 3.28.3 # latest
+#   oracular 3.30.3 # rolling
+#   plucky devel
+ARG compiler=gcc
+ARG compiler_version=12
+ARG build_type=Release
+ARG cmake_version=3.30.5
+ARG cmake_generator=Ninja
+ARG cache_conan=true
+
+ENV compiler=$compiler
+ENV compiler_version=$compiler_version
+ENV build_type=$build_type
+ENV cmake_version=$cmake_version
+ENV cmake_generator=$cmake_generator
+
+RUN <<EOF
+    set -ex
+    apt-get update
+    apt-get install -y build-essential
+    if [ "${cmake_generator}" = "Unix Makefiles" ]; then
+        generator_pkg="make"
+    elif [ "${cmake_generator}" = "Ninja" ]; then
+        generator_pkg="ninja-build"
+    fi
+    # I guess some deps ignore the generator?
+    apt-get install -y make
+    apt-get install -y "${generator_pkg}"
+    if [ "${compiler}" = "gcc" ]; then
+        apt-get install -y \
+            gcc-${compiler_version} \
+            g++-${compiler_version}
+        update-alternatives \
+            --install /usr/bin/gcc gcc /usr/bin/gcc-${compiler_version} ${compiler_version} \
+            --slave /usr/bin/g++ g++ /usr/bin/g++-${compiler_version}
+    elif [ "${compiler}" = "clang" ]; then
+        apt-get install -y \
+            clang-${compiler_version} \
+            clang++-${compiler_version}
+        update-alternatives \
+            --install /usr/bin/clang clang /usr/bin/clang-${compiler_version} ${compiler_version} \
+            --slave /usr/bin/clang++ clang++ /usr/bin/clang++-${compiler_version}
+    fi
+EOF
+
+RUN <<EOF
+        apt-get install -y \
+        curl \
+        git \
+        vim \
+        ca-certificates \
+        gnupg
+    # cmake \
+EOF
+# COPY install_cmake.sh install_cmake.sh
+# RUN ./install_cmake.sh "${cmake_version}"
+# ENV CMAKE_ROOT=/opt/cmake/${cmake_version}/share/cmake-${cmake_version%.*}
+# RUN ln -s  /opt/cmake/${cmake_version}/bin/cmake /usr/local/bin/cmake
+# RUN apt-get install -y git vim ca-certificates gnupg/
+# RUN update-alternatives --install /usr/bin/${compiler} ${compiler} /usr/bin/${compiler}-${compiler_version} ${compiler_version} \
+#         --slave /usr/bin/${compiler}++ ${compiler}++ /usr/bin/${compiler}++-${compiler_version}
+
+WORKDIR /root
+COPY --from=ghcr.io/astral-sh/uv:0.6.12 /uv /uvx /bin/
+# curl -LsSf https://astral.sh/uv/install.sh | sh
+
+ARG CONAN_PROFILE=default
+ARG CONAN_HOME=/home/conan
+
+ENV CONAN_HOME="${CONAN_HOME}"
+ENV CONAN_PROFILE="${CONAN_PROFILE}"
+
+RUN UV_TOOL_BIN_DIR=/usr/local/bin uv tool install conan
+RUN UV_TOOL_BIN_DIR=/usr/local/bin uv tool install "cmake@${cmake_version}"
+
+# RUN conan profile detectv
+RUN mkdir -p "${CONAN_HOME}/profiles/"
+
+COPY <<EOF "${CONAN_HOME}/profiles/${CONAN_PROFILE}"
+{% set compiler, version, compiler_exe = detect_api.detect_default_compiler() %}
+[settings]
+arch={{detect_api.detect_arch()}}
+os={{detect_api.detect_os()}}
+build_type="${build_type}"
+compiler={{compiler}}
+compiler.version={{detect_api.default_compiler_version(compiler, version)}}
+compiler.libcxx={{detect_api.detect_libcxx(compiler, version, compiler_exe)}}
+compiler.cppstd=20
+
+[options]
+"&:xrpld=True"
+"&:tests=False"
+[conf]
+tools.cmake.cmaketoolchain:generator="${cmake_generator}"
+EOF
+
+ARG rippled_src="rippled_src"
+ENV RIPPLED_SRC="/root/${rippled_src}"
+ENV BUILD_DIR="/root/build"
+COPY "${rippled_src}" "${RIPPLED_SRC}"
+
+# Build the dependencies
+# RUN <<EOF
+# RUN --mount=type=cache,id="${compiler}_${compiler_version}_${build_type}",target="${CONAN_HOME}/p" <<EOF
+# conan install "${RIPPLED_SRC}" \
+#     --output-folder "${BUILD_DIR}" \
+#     --build missing \
+#     --options xrpld=True \
+#     --options tests=True
+# # EOF
+# # Configure the build system
+# # RUN <<EOF
+# cmake -S "${RIPPLED_SRC}" \
+#     -B "${BUILD_DIR}" \
+#     -DCMAKE_VERBOSE_MAKEFILE=ON \
+#     -DCMAKE_TOOLCHAIN_FILE="${BUILD_DIR}/build/generators/conan_toolchain.cmake" \
+#     -DCMAKE_POLICY_DEFAULT_CMP0091=NEW
+# # EOF
+# # # ... a bunch of CMake output...
+# # # Finally build rippled
+# #RUN <<EOF
+# cmake --build "${BUILD_DIR}" --parallel 30
+
+# EOF
