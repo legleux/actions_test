@@ -5,14 +5,20 @@ on:
   #     - test
 env:
   REGISTRY: ghcr.io
+  REPO_NAME: ${{ github.repository }}
   IMAGE_NAME: ${{ github.repository }}_image
+  FORK: ${{ github.event.repository.fork }}
 jobs:
   test_condition:
     # runs-on: [self-hosted, heavy]
     runs-on: ubuntu-latest
     if: github.event.repository.fork != true
     steps:
-      - run: echo "${{ github.repository }}"
+      - run: |
+          echo "github.repository: ${{ github.repository }}"
+          echo "Fork is: $FORK"
+          echo "REPO_NAME is: $REPO_NAME"
+
   # text_condition_2:
   #   # runs-on: [self-hosted, heavy]
   #   runs-on: ubuntu-latest
