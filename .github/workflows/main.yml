@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.repository.fork != true
     steps:
-      - run: echo "${{ github.event.repository }}"
+      - run: echo "${{ github.repository }}"
   # text_condition_2:
   #   # runs-on: [self-hosted, heavy]
   #   runs-on: ubuntu-latest
@@ -22,7 +22,7 @@ jobs:
   text_condition_3:
     # runs-on: [self-hosted, heavy]
     runs-on: ubuntu-latest
-    if: github.event.repository == 'legleux/rippled'
+    if: ${{ github.repository }} == 'legleux/rippled'
     steps:
       - run: echo "It _is_ my repo!"
   test_and:
