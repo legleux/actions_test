@@ -9,34 +9,12 @@ env:
   IMAGE_NAME: ${{ github.repository }}_image
   FORK: ${{ github.event.repository.fork }}
 jobs:
-  test_condition:
-    # runs-on: [self-hosted, heavy]
-    runs-on: ubuntu-latest
-    if: github.event.repository.fork != true
-    steps:
-      - run: |
-          echo "github.repository: ${{ github.repository }}"
-          echo "Fork is: $FORK"
-          echo "REPO_NAME is: $REPO_NAME"
-
-  # text_condition_2:
-  #   # runs-on: [self-hosted, heavy]
-  #   runs-on: ubuntu-latest
-  #   if: github.event.repository == 'XRPLF/rippled'
-  #   steps:
-  #     - run: echo "Not my repo!"
-  text_condition_3:
-    # runs-on: [self-hosted, heavy]
-    runs-on: ubuntu-latest
-    if: ${{ github.repository }} == 'legleux/rippled'
-    steps:
-      - run: echo "It _is_ my repo!"
   test_and:
-    # runs-on: [self-hosted, heavy]
     runs-on: ubuntu-latest
-    if: github.event.repository.fork != true && github.repository == 'legleux/rippled'
+    if: (github.event.repository.fork != true) && (github.repository == 'legleux/rippled')
     steps:
       - run: echo "o boi!"
+
 
   # create_builder_image:
   #   name: Building ${{ matrix.compiler }} builder
