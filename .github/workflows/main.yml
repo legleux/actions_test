@@ -7,81 +7,105 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}_image
 jobs:
-  create_builder_image:
-    name: Building ${{ matrix.compiler }} builder
-    strategy:
-      fail-fast: false
-      matrix:
-        compiler:
-          - gcc-12
-          # - gcc-13
-          - clang-16
-          # - clang-18
-    env:
-      SCRIPT_NAME: the_${{ matrix.compiler }}_script.sh
-
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
+  test_condition:
+    # runs-on: [self-hosted, heavy]
+    if: github. runs-on: ubuntu-latestevent.repository.fork != true
     steps:
-      - uses: actions/checkout@v4
+      - run: echo "We're not a fork!!"
+  text_condition_2:
+    # runs-on: [self-hosted, heavy]
+    runs-on: ubuntu-latest
+    if: github.event.repository == "XRPLF/rippled"
+    steps:
+      - run: echo "Not my repo!"
+  text_condition_3:
+    # runs-on: [self-hosted, heavy]
+    runs-on: ubuntu-latest
+    if: github.event.repository == "legleux/rippled"
+    steps:
+      - run: echo "It _is_ my repo!"
+  test_and:
+    # runs-on: [self-hosted, heavy]
+    runs-on: ubuntu-latest
+    if: (github.event.repository.fork != true) && (github.event.repository == "XRPLF/rippled")
+    steps:
+      - run: echo "o boi!"
 
-      # - run: echo -e "#!/usr/bin\necho 'cool script bro' ${{ matrix.compiler }}" > "${SCRIPT_NAME}"
+  # create_builder_image:
+  #   name: Building ${{ matrix.compiler }} builder
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       compiler:
+  #         - gcc-12
+  #         # - gcc-13
+  #         - clang-16
+  #         # - clang-18
+  #   env:
+  #     SCRIPT_NAME: the_${{ matrix.compiler }}_script.sh
 
-      # - name: Run script with action
-      #   id: script_run
-      #   uses: ./.github/actions/build_image
-      #   with:
-      #     compiler: ${{ matrix.compiler }}
-      #     # compiler_version: ${{ matrix.version }}
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     packages: write
+  #     attestations: write
+  #     id-token: write
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      # - uses: actions/upload-artifact@v4
-      #   with:
-      #     name: my_${{ matrix.compiler }}_artifact
-      #     path: the_${{ matrix.compiler }}_script.sh
-      #     if-no-files-found: error
-      # - name: Find script
-      #   shell: bash
-      #   run: |
-      #     set -ex
-      #     script_path=$(find . -name "${SCRIPT_NAME}")
-      #     echo "found it @ ${script_path}"
+  #     # - run: echo -e "#!/usr/bin\necho 'cool script bro' ${{ matrix.compiler }}" > "${SCRIPT_NAME}"
 
-      # - uses: actions/download-artifact@v4
-      #   with:
-      #     name: my_${{ matrix.compiler }}_artifact
+  #     # - name: Run script with action
+  #     #   id: script_run
+  #     #   uses: ./.github/actions/build_image
+  #     #   with:
+  #     #     compiler: ${{ matrix.compiler }}
+  #     #     # compiler_version: ${{ matrix.version }}
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+  #     # - uses: actions/upload-artifact@v4
+  #     #   with:
+  #     #     name: my_${{ matrix.compiler }}_artifact
+  #     #     path: the_${{ matrix.compiler }}_script.sh
+  #     #     if-no-files-found: error
+  #     # - name: Find script
+  #     #   shell: bash
+  #     #   run: |
+  #     #     set -ex
+  #     #     script_path=$(find . -name "${SCRIPT_NAME}")
+  #     #     echo "found it @ ${script_path}"
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
-        with:
-          images: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}_${{ matrix.compiler }}
+  #     # - uses: actions/download-artifact@v4
+  #     #   with:
+  #     #     name: my_${{ matrix.compiler }}_artifact
+
+  #     - name: Log in to the Container registry
+  #       uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+  #       with:
+  #         registry: ${{ env.REGISTRY }}
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
+
+  #     - name: Extract metadata (tags, labels) for Docker
+  #       id: meta
+  #       uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+  #       with:
+  #         images: |
+  #           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}_${{ matrix.compiler }}
 
 
-      # - uses: actions/checkout@v4
-      #   with:
-      #     # Repository name with owner. For example, actions/checkout
-      #     # Default: ${{ github.repository }}
-      #     repository: "XRPLF/rippled"
-      #     path: "./rippled_src"
+  #     # - uses: actions/checkout@v4
+  #     #   with:
+  #     #     # Repository name with owner. For example, actions/checkout
+  #     #     # Default: ${{ github.repository }}
+  #     #     repository: "XRPLF/rippled"
+  #     #     path: "./rippled_src"
 
-      - name: Build and push Docker image
-        id: push
-        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
-        with:
-          context: .
-          file: ./Dockerfile.real
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+  #     - name: Build and push Docker image
+  #       id: push
+  #       uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+  #       with:
+  #         context: .
+  #         file: ./Dockerfile.real
+  #         push: true
+  #         tags: ${{ steps.meta.outputs.tags }}
+  #         labels: ${{ steps.meta.outputs.labels }}
