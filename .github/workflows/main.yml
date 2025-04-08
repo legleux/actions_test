@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.repository.fork != true
     steps:
-      - run: echo "We're not a fork!!"
+      - run: echo "${{ github.event.repository }}"
   # text_condition_2:
   #   # runs-on: [self-hosted, heavy]
   #   runs-on: ubuntu-latest
