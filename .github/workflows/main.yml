@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     # if: github.event.repository.fork != true
     # if: ${{ github.repository == 'legleux/rippled' && ! github.event.repository.fork }}
-    if: ! github.event.repository.fork
+    if: github.event.repository.fork != true
     # if: (github.event.repository.fork != true) && (github.repository == 'legleux/rippled')
     steps:
       - run: |
