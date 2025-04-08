@@ -15,7 +15,11 @@ jobs:
     if: ${{ github.repository }} == 'legleux/rippled' && github.event.repository.fork == true
     # if: (github.event.repository.fork != true) && (github.repository == 'legleux/rippled')
     steps:
-      - run: echo "o boi!"
+      - run: |
+        echo "wtf: ${{ github.event.repository.fork }}"
+        echo "wtf: ${{ github.event.repository.fork == 'true' }}"
+        echo "wtf: ${{ github.event.repository.fork == 'false' }}"
+        echo "o boi!"
 
 
   # create_builder_image:
