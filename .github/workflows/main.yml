@@ -9,25 +9,26 @@ env:
 jobs:
   test_condition:
     # runs-on: [self-hosted, heavy]
-    if: github. runs-on: ubuntu-latestevent.repository.fork != true
+    runs-on: ubuntu-latest
+    if: github.event.repository.fork != true
     steps:
       - run: echo "We're not a fork!!"
   text_condition_2:
     # runs-on: [self-hosted, heavy]
     runs-on: ubuntu-latest
-    if: github.event.repository == "XRPLF/rippled"
+    if: github.event.repository == 'XRPLF/rippled'
     steps:
       - run: echo "Not my repo!"
   text_condition_3:
     # runs-on: [self-hosted, heavy]
     runs-on: ubuntu-latest
-    if: github.event.repository == "legleux/rippled"
+    if: github.event.repository == 'legleux/rippled'
     steps:
       - run: echo "It _is_ my repo!"
   test_and:
     # runs-on: [self-hosted, heavy]
     runs-on: ubuntu-latest
-    if: (github.event.repository.fork != true) && (github.event.repository == "XRPLF/rippled")
+    if: (github.event.repository.fork != true) && (github.event.repository == 'XRPLF/rippled')
     steps:
       - run: echo "o boi!"
 
