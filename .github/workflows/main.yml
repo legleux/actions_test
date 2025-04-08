@@ -11,11 +11,8 @@ env:
 jobs:
   test_and:
     runs-on: ubuntu-latest
-    # if: github.event.repository.fork != true
-    # if: ${{ github.repository == 'legleux/rippled' && ! github.event.repository.fork }}
-    if: ${{ github.repository }} == 'legleux/rippled'
-    # if: ${{ github.repository == 'legleux/rippled' }} && github.event.repository.fork != true
-    # if: (github.event.repository.fork != true) && (github.repository == 'legleux/rippled')
+    # if: ${{ github.repository }} == 'legleux/rippled'
+    if: ${{ github.repository == 'legleux/rippled' }}
     steps:
       - run: |
           echo "wtf: ${{ github.event.repository.fork }}"
