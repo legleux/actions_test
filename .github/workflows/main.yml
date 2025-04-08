@@ -34,7 +34,7 @@ jobs:
   test_and:
     # runs-on: [self-hosted, heavy]
     runs-on: ubuntu-latest
-    if: (github.event.repository.fork != true) && (github.event.repository == 'XRPLF/rippled')
+    if: github.event.repository.fork != true && github.repository == 'legleux/rippled'
     steps:
       - run: echo "o boi!"
 
