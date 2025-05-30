@@ -25,4 +25,4 @@ jobs:
               f.write('tools.build:verbosity=verbose\n')
               f.write(f'core.download:parallel = {n}\n')
               f.write(f'core.upload:parallel = {n}\n')
-EOF
+            EOF
