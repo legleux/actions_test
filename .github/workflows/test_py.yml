@@ -16,13 +16,13 @@ jobs:
         run: |
             pip install conan
             python <<EOF
-    import subprocess
-    home = subprocess.check_output(['conan', 'config', 'home'], text=True).strip()
-    conf = Path(home) / 'global.conf'
+            import subprocess
+            home = subprocess.check_output(['conan', 'config', 'home'], text=True).strip()
+            conf = Path(home) / 'global.conf'
 
-    with open(conf, 'a') as f:
-      n = cpu_count()
-      f.write('tools.build:verbosity=verbose\n')
-      f.write(f'core.download:parallel = {n}\n')
-      f.write(f'core.upload:parallel = {n}\n')
+            with open(conf, 'a') as f:
+              n = cpu_count()
+              f.write('tools.build:verbosity=verbose\n')
+              f.write(f'core.download:parallel = {n}\n')
+              f.write(f'core.upload:parallel = {n}\n')
 EOF
