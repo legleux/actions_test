@@ -1,0 +1,28 @@
+name: run
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu:latest
+    container: python:3
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: Run some python
+        run: |
+            pip install conan
+            python <<EOF
+import subprocess
+home = subprocess.check_output(['conan', 'config', 'home'], text=True).strip()
+conf = Path(home) / 'global.conf'
+
+with open(conf, 'a') as f:
+  n = cpu_count()
+  f.write('tools.build:verbosity=verbose\n')
+  f.write(f'core.download:parallel = {n}\n')
+  f.write(f'core.upload:parallel = {n}\n')
+EOF
