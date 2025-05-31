@@ -11,6 +11,7 @@ jobs:
       matrix:
         version: [gcc, clang]
         os: [ubuntu-latest]
+    name: ${{ matrix.os }} ${{ matrix.version }}
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -32,7 +33,7 @@ jobs:
               f.write(f'core.upload:parallel = {n}\n')
             EOF
             conan profile detect
-            conan profile show --profile:all default | tee "${{ matrix.os }} ${{ matrix.version }}"  >> $GITHUB_STEP_SUMMARY
+            conan profile show --profile:all default 2>&1 | tee "${{ matrix.os }} ${{ matrix.version }}"  >> $GITHUB_STEP_SUMMARY
 
       - uses: actions/upload-artifact@v4
         with:
