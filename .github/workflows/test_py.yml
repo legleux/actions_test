@@ -6,36 +6,37 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: python:3
+    # container: python:3
     strategy:
       matrix:
         version: [gcc, clang]
         os: [ubuntu-latest]
-    name: ${{ matrix.os }} ${{ matrix.version }}
+    name: "${{ matrix.os }} ${{ matrix.version }}"
     steps:
       - name: checkout
         uses: actions/checkout@v4
 
       - name: Install Conan python
         run: |
-            pip install conan
+          pip install conan
 
       - name: Run some python
         run: |
-            python <<EOF
-            import subprocess; from pathlib import Path
-            home = subprocess.check_output(['conan', 'config', 'home'], text=True).strip()
-            conf = Path(home) / 'global.conf'
-            n=4
-            with open(conf, 'a') as f:
-              f.write('tools.build:verbosity=verbose\n')
-              f.write(f'core.download:parallel = {n}\n')
-              f.write(f'core.upload:parallel = {n}\n')
-            EOF
-            conan profile detect
-            conan profile show --profile:all default 2>&1 | tee "${{ matrix.os }} ${{ matrix.version }}"  >> $GITHUB_STEP_SUMMARY
+          exec 2>&1
+          python <<EOF
+          import subprocess; from pathlib import Path
+          home = subprocess.check_output(['conan', 'config', 'home'], text=True).strip()
+          conf = Path(home) / 'global.conf'
+          n=4
+          with open(conf, 'a') as f:
+            f.write('tools.build:verbosity=verbose\n')
+            f.write(f'core.download:parallel = {n}\n')
+            f.write(f'core.upload:parallel = {n}\n')
+          EOF
+          conan profile detect
+          conan profile show --profile:all default | tee "${{ matrix.os }} ${{ matrix.version }}"  >> $GITHUB_STEP_SUMMARY
 
       - uses: actions/upload-artifact@v4
         with:
-          name: profile
-          path: path/to/artifact/ # or path/to/artifact
+          name: "profile_${{ matrix.os }}_${{ matrix.version }}"
+          path: "${{ matrix.os }}_${{ matrix.version }}"
