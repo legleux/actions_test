@@ -1,0 +1,22 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build-linux:
+    uses: ./.github/workflows/build-container.yml
+    with:
+      container: "ghcr.io/xrplf/rippled-build-ubuntu:aaf5e3e"
+      profile: "default"
+
+  build-macos:
+    uses: ./.github/workflows/build.yml
+    with:
+      os: "macOS"
+      profile: default
+
+  build-windows:
+    uses: ./.github/workflows/build.yml
+    with:
+      os: "Windows"
+      profile: default
