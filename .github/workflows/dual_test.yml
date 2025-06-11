@@ -71,7 +71,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ env.IMAGE_NAME }}
-          outputs: type=image,push-by-digest=true,name-canonical=true,push=true
+          outputs: type=image,push-by-digest=true,name-canonical=true
           # context: .
           # push: true
           # tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
