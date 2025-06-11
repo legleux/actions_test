@@ -4,7 +4,7 @@ name: ci
 on:
   push:
 env:
-  REGISTRY_IMAGE: ${{ github.repository }}/app
+  REGISTRY_IMAGE: ${{ github.repository }}:latest
 
 jobs:
   build:
