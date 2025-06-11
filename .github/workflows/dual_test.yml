@@ -23,6 +23,7 @@ jobs:
       - name:
         run: |
           echo ${{ matrix.name }}
+          echo "arch: $(uname -m)"
           echo ${{ matrix.runs_on }}
           echo ${{ matrix.platform }}
           echo "github.repository: ${{ github.repository }}"
