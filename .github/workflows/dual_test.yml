@@ -1,0 +1,49 @@
+
+name: ci
+
+on:
+  push:
+
+jobs:
+  build:
+    strategy:
+        matrix:
+            runs_on:
+                - ubuntu-22.04
+                - ubuntu-22.04-arm64
+    runs-on: ${{ matrix.runs_on }}
+    steps:
+      - name:
+        run: |
+            echo "github.repository: ${{ github.repository }}"
+            echo "github.repository_owner: ${{ github.repository_owner }}"
+            echo "github.repository_owner_id${{ github.repository_owner_id }}"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and export
+        uses: docker/build-push-action@v6
+        with:
+          tags: ${{ github.repository }}:latest
+          outputs: type=docker,dest=${{ runner.temp }}/${{github.repository}}.tar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: myimage
+          path: ${{ runner.temp }}/${{ github.repository }}.tar
+
+  use:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.repository }}
+          path: ${{ runner.temp }}
+
+      - name: Load image
+        run: |
+          docker load --input ${{ runner.temp }}/${{ github.repository }}.tar
+          docker image ls -a
