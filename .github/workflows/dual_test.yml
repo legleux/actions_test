@@ -21,7 +21,7 @@ jobs:
           - arm:
             runs_on: ubuntu-22.04-arm
             platform: linux/arm64
-    runs-on: ${{ matrix.runs_on }}
+    runs-on: ${{ matrix.platform.runs_on }}
     steps:
       - name:
         run: |
