@@ -11,23 +11,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform:
-          - amd
-          - arm
         include:
-          - amd:
+          - name: amd:
             runs_on: ubuntu-22.04
             platform: linux/amd64
-          - arm:
+          - name: arm:
             runs_on: ubuntu-22.04-arm
             platform: linux/arm64
-    runs-on: ${{ matrix.platform.runs_on }}
+    runs-on: ${{ matrix.runs_on }}
     steps:
       - name:
         run: |
           echo ${{ matrix.platform }}
           echo ${{ matrix.runs_on }}
-          echo ${{ matrix.platform.platform }}
+          echo ${{ matrix.platform }}
           echo "github.repository: ${{ github.repository }}"
           echo "github.repository_owner: ${{ github.repository_owner }}"
           echo "github.repository_owner_id${{ github.repository_owner_id }}"
