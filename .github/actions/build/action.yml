@@ -1,0 +1,38 @@
+name: matrix_test
+description: See if I get values from matrix
+runs:
+  using: composite
+  steps:
+
+    - name: Use matrix
+      shell: bash
+      id: set_artifact_name
+      run: |
+
+        if [[ "${{ matrix.configuration }}" =~ ^(Debug|Release)$ ]]; then
+          config=${{ matrix.configuration }}
+        else # we're on windows
+          config=${{ matrix.configuration.type }}
+        fi
+
+        if [[ "${{ matrix.platform }}" =~ ^(macos|windows)$ ]]; then
+          artifact_name="${{ matrix.platform }}-${config}"
+        else
+          artifact_name="${{ matrix.platform }}-${{ matrix.compiler }}-${config}"
+        fi
+        artifact_name="buuts"
+        echo "artifact_name=${artifact_name}" >> $GITHUB_OUTPUT
+        echo "**************************************************"
+        echo "platform=${{ matrix.platform }}"
+        echo "compiler=${{ matrix.compiler }}"
+        echo "compiler_vesion=${{ matrix.compiler_vesion }}"
+        echo "configuration=${{ matrix.configuration }}"
+        echo "**************************************************"
+        touch file.txt
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ steps.set_artifact_name.outputs.artifact_name }}
+        path: file.txt
+        if-no-files-found: error
