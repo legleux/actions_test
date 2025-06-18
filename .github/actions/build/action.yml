@@ -20,7 +20,7 @@ runs:
         else
           artifact_name="${{ matrix.platform }}-${{ matrix.compiler }}-${config}"
         fi
-        artifact_name="buuts"
+
         echo "artifact_name=${artifact_name}" >> $GITHUB_OUTPUT
         echo "**************************************************"
         echo "platform=${{ matrix.platform }}"
