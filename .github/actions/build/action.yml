@@ -3,6 +3,8 @@ description: See if I get values from matrix
 runs:
   using: composite
   steps:
+    - run: env | sort
+      shell: bash
 
     - name: Use matrix
       shell: bash
