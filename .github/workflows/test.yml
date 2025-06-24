@@ -17,17 +17,12 @@ jobs:
           - linux
         compiler:
           - gcc
-          # - clang
         configuration:
-          # - Debug
           - Release
         include:
           - compiler: gcc
             compiler_version: 11
-          # - compiler: clang
-          #   compiler_version: 14
     runs-on: [ubuntu-latest]
-    # runs-on: [self-hosted, heavy]
     container: ghcr.io/xrplf/rippled-build-ubuntu:aaf5e3e
     steps:
       - name: checkout
