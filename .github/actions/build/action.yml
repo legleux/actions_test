@@ -1,21 +1,4 @@
-name: matrix_test
-description: See if I get values from matrix
-runs:
-  using: composite
-  steps:
-    - run: env | sort
-      shell: bash
-
-    - name: Use matrix
-      shell: bash
-      id: set_artifact_name
-      run: |
-
-        if [[ "${{ matrix.configuration }}" =~ ^(Debug|Release)$ ]]; then
-          config=${{ matrix.configuration }}
-        else # we're on windows
-          config=${{ matrix.configuration.type }}
-        fi
+t
 
         if [[ "${{ matrix.platform }}" =~ ^(macos|windows)$ ]]; then
           artifact_name="${{ matrix.platform }}-${config}"
