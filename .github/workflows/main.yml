@@ -39,7 +39,7 @@ on:
 
 jobs:
   build_1:
-    name: "Boolean is ${{ inputs.boolean }}"
+    name: "Boolean is ${{ inputs.boolean }} or ${{ github.event.inputs.boolean  }}"
     strategy:
       fail-fast: false
       matrix:
@@ -60,7 +60,8 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - name: Show inputs
+      - name: "Inputs: ${{ inputs.boolean }} or ${{ github.event.inputs.boolean  }}"
+
         run: |
           echo "environment is ${{ github.event.inputs.environment }} / ${{ inputs.environment }}"
           echo "boolean is ${{ github.event.inputs.boolean }}" / ${{ inputs.boolean }}
