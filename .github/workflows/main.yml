@@ -36,6 +36,10 @@ jobs:
           - "True"
           - ''
           - 'False'
+        runit:
+          - "yes"
+          - "no"
+          - "whoknows"
     runs-on: ubuntu-latest
     permissions:
       id-token: write

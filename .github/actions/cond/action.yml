@@ -6,11 +6,21 @@ inputs:
   manual:
     description: "A manual override"
     default: ''
-    required: true
+    required: false
+  runit:
+    description: "Just runit"
+    default: ''
+    required: false
 # An implicit input is the environment variable `build_dir`.
 runs:
   using: composite
   steps:
+    - name: runit
+      shell: bash
+      if: inputs.runit == 'yes'
+      run: |
+        echo "We ran it!!!"
+
     - name: OR confidtion
       shell: bash
       if: env.CONAN_LOGIN_USERNAME_RIPPLE != '' || env.CONAN_PASSWORD_RIPPLE != ''
