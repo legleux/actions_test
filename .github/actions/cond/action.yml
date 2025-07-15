@@ -28,3 +28,9 @@ runs:
       run: |
         echo "We ran it!!!because either was not empty!"
         echo it was: ${{ inputs.runit }}
+
+    - name: sanity check
+      shell: bash
+      run: |
+        echo "env.CONAN_LOGIN_USERNAME_RIPPLE: ${{ env.CONAN_LOGIN_USERNAME_RIPPLE }}"
+        echo "CONAN_LOGIN_USERNAME_RIPPLE: ${CONAN_LOGIN_USERNAME_RIPPLE}"
