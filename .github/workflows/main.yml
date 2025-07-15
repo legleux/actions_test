@@ -27,14 +27,14 @@ on:
         type: string
 
 jobs:
-  strategy:
-    fail-fast: false
-    matrix:
-      manual:
-        - "True"
-        - ''
-        -
   build_1:
+    strategy:
+      fail-fast: false
+      matrix:
+        manual:
+          -
+          - "True"
+          - ''
     runs-on: [self-hosted, heavy]
     permissions:
       id-token: write
