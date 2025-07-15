@@ -20,7 +20,7 @@ runs:
       shell: bash
       run: |
         echo "BOTH were not empty!"
-        echo it was: ${{ inputs.runit }}
+        echo "runit was: ${{ inputs.runit }}"
 
     - name: OR run
       if: env.CONAN_LOGIN_USERNAME_RIPPLE != '' || env.CONAN_PASSWORD_RIPPLE != ''
