@@ -51,7 +51,7 @@ jobs:
       - name: build image 1
         run: |
           docker build . -f Dockerfile.1 -t image_1
-      - name: use action
+      - name: use action with runit=${{ matrix.runit }}
         uses: ./.github/actions/cond
         with:
           condition: True
