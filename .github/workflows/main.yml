@@ -2,7 +2,7 @@ name: Test tings
 env:
   DEFAULT_WORKLOAD_COMMIT: main
   NUM_VALIDATORS: 5
-
+  CONAN_LOGIN_USERNAME_RIPPLE: muhnmame
 on:
   push:
   workflow_dispatch:
