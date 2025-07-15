@@ -19,7 +19,7 @@ runs:
       if: env.CONAN_LOGIN_USERNAME_RIPPLE != '' && env.CONAN_PASSWORD_RIPPLE != ''
       shell: bash
       run: |
-        echo "We ran it!!!because either was not empty!"
+        echo "BOTH were not empty!"
         echo it was: ${{ inputs.runit }}
 
     - name: OR run
