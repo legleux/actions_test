@@ -35,6 +35,7 @@ jobs:
           -
           - "True"
           - ''
+          - 'False'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -51,6 +52,7 @@ jobs:
         with:
           condition: True
           manual: ${{ matrix.manual }}
+
   build_2:
     runs-on: ubuntu-latest
     permissions:
