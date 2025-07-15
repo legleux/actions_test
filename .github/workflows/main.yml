@@ -1,4 +1,4 @@
-name: start-experiment
+name: Test tings
 env:
   DEFAULT_WORKLOAD_COMMIT: main
   NUM_VALIDATORS: 5
@@ -39,6 +39,7 @@ on:
 
 jobs:
   build_1:
+    name: "Boolean is ${{ github.event.inputs.boolean }}"
     strategy:
       fail-fast: false
       matrix:
