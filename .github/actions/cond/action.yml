@@ -1,0 +1,36 @@
+name: conditional step
+inputs:
+  condition:
+    description: "The condition"
+    required: true
+  manual:
+    description: "A manual override"
+    default: ''
+    required: true
+# An implicit input is the environment variable `build_dir`.
+runs:
+  using: composite
+  steps:
+    - name: export custom recipes
+      if: env.OVERRIDE != ''
+      shell: bash
+      run: |
+        echo "This can be overridden if OVERRIDE != '' in the env"
+
+    - name: export custom recipes
+      if: env.OVERRIDE == ''
+      shell: bash
+      run: |
+        echo "OVERRIDE was == '' !"
+
+    - name: export custom recipes
+      if: inputs.manual == ''
+      shell: bash
+      run: |
+        echo "The default for OVERRIDE"
+
+    - name: export custom recipes
+      if: inputs.manual != ''
+      shell: bash
+      run: |
+        echo "manual must have been anything other than '' in the input"

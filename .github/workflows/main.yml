@@ -27,6 +27,13 @@ on:
         type: string
 
 jobs:
+  strategy:
+    fail-fast: false
+    matrix:
+      manual:
+        - "True"
+        - ''
+        -
   build_1:
     runs-on: [self-hosted, heavy]
     permissions:
@@ -39,7 +46,11 @@ jobs:
       - name: build image 1
         run: |
           docker build . -f Dockerfile.1 -t image_1
-
+      - name: use action
+        uses: ./.github/actions/cond
+        with:
+          condition: True
+          manual: ${{ matrix.manual }}
   build_2:
     runs-on: [self-hosted, heavy]
     permissions:
@@ -51,7 +62,11 @@ jobs:
       - name: build image 2
         run: |
           docker build . -f Dockerfile.1 -t image_2
-
+      - name: use action
+        uses: ./.github/actions/cond
+        with:
+          condition: False
+          manual: ${{ matrix.manual }}
   build_3:
     runs-on: [self-hosted, heavy]
     permissions:
