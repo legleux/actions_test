@@ -2,9 +2,6 @@ name: start-experiment
 env:
   DEFAULT_WORKLOAD_COMMIT: main
   NUM_VALIDATORS: 5
-  IMAGE_1: rippled:${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}
-  IMAGE_2: workload:${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}
-  IMAGE_3: config:${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}
 
 on:
   push:
@@ -20,6 +17,20 @@ on:
         default: develop
         required: true
         type: string
+      environment:
+        type: environment
+        description: Select the environment
+      boolean:
+        type: boolean
+        description: True or False
+        default: True
+      choice:
+        type: choice
+        description: Make a choice
+        options:
+        - foo
+        - bar
+        - baz
       workload_commit:
         description: 'Git workload branch/commit'
         default: main
@@ -47,6 +58,12 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v4
+
+      - name: Show inputs
+        run: |
+          echo "environment is ${{ github.event.inputs.environment }} / ${{ inputs.environment }}"
+          echo "boolean is ${{ github.event.inputs.boolean }}" / ${{ inputs.boolean }}
+          echo "choice is ${{ github.event.inputs.choice }}" / ${{ inputs.choice }}
 
       - name: build image 1
         run: |
