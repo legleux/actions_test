@@ -11,13 +11,15 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: OR confidtiona
+    - name: OR confidtion
+      shell: bash
       if: env.CONAN_LOGIN_USERNAME_RIPPLE != '' || env.CONAN_PASSWORD_RIPPLE != ''
       run: |
         echo "Well neither both must have been defined..."
         echo "CONAN_LOGIN_USERNAME_RIPPLE: $CONAN_LOGIN_USERNAME_RIPPLE"
         echo "CONAN_PASSWORD_RIPPLE: $CONAN_PASSWORD_RIPPLE"
-    - name: AND confidtiona
+    - name: AND confidtion
+      shell: bash
       if: env.CONAN_LOGIN_USERNAME_RIPPLE != '' && env.CONAN_PASSWORD_RIPPLE != ''
       run: |
         echo "Well they must have BOTH been defined..."
