@@ -26,25 +26,25 @@ runs:
         echo "CONAN_LOGIN_USERNAME_RIPPLE: $CONAN_LOGIN_USERNAME_RIPPLE"
         echo "CONAN_PASSWORD_RIPPLE: $CONAN_PASSWORD_RIPPLE"
 
-    - name: export custom recipes
+    - name: step 1
       if: env.OVERRIDE != ''
       shell: bash
       run: |
         echo "This can be overridden if OVERRIDE != '' in the env"
 
-    - name: export custom recipes
+    - name: step 2
       if: env.OVERRIDE == ''
       shell: bash
       run: |
         echo "OVERRIDE was == '' !"
 
-    - name: export custom recipes
+    - name: step 3
       if: inputs.manual == ''
       shell: bash
       run: |
         echo "The default for OVERRIDE"
 
-    - name: export custom recipes
+    - name: step 4
       if: inputs.manual != ''
       shell: bash
       run: |
