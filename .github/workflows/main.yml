@@ -55,6 +55,7 @@ jobs:
         uses: ./.github/actions/cond
         with:
           condition: True
+          runit: ${{ matrix.runit }}
           manual: ${{ matrix.manual }}
 
   build_2:
