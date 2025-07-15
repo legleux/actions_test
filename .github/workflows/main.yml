@@ -52,5 +52,9 @@ jobs:
           echo "boolean is ${{ github.event.inputs.boolean }}" / ${{ inputs.boolean }}
           echo "choice is ${{ github.event.inputs.choice }}" / ${{ inputs.choice }}
 
+      - name: Check env in workflow
+        run: |
+          echo "env.CONAN_LOGIN_USERNAME_RIPPLE: ${{ env.CONAN_LOGIN_USERNAME_RIPPLE }}"
+          echo "CONAN_LOGIN_USERNAME_RIPPLE: ${CONAN_LOGIN_USERNAME_RIPPLE}"
       - name: use action
         uses: ./.github/actions/cond
