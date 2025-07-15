@@ -15,61 +15,16 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: runit no curlies
-      shell: bash
-      if: inputs.runit == 'yes'
-      run: |
-        echo "We ran it!!!"
-        echo it was: ${{ inputs.runit }}
-
-    - name: runit with curlies
-      shell: bash
-      if: ${{ inputs.runit }} == 'yes'
-      run: |
-        echo "We ran it with curlies!!!"
-        echo it was: ${{ inputs.runit }}
-    - name: runit curlies not yes
-      shell: bash
-      if: ${{ inputs.runit }} != 'yes'
-      run: |
-        echo "We ran it with curlies and not yes!!!"
-        echo it was: ${{ inputs.runit }}
-
-    - name: OR confidtion
-      shell: bash
-      if: env.CONAN_LOGIN_USERNAME_RIPPLE != '' || env.CONAN_PASSWORD_RIPPLE != ''
-      run: |
-        echo "Well neither both must have been defined..."
-        echo "CONAN_LOGIN_USERNAME_RIPPLE: $CONAN_LOGIN_USERNAME_RIPPLE"
-        echo "CONAN_PASSWORD_RIPPLE: $CONAN_PASSWORD_RIPPLE"
-    - name: AND confidtion
-      shell: bash
+    - name: AND run
       if: env.CONAN_LOGIN_USERNAME_RIPPLE != '' && env.CONAN_PASSWORD_RIPPLE != ''
-      run: |
-        echo "Well they must have BOTH been defined..."
-        echo "CONAN_LOGIN_USERNAME_RIPPLE: $CONAN_LOGIN_USERNAME_RIPPLE"
-        echo "CONAN_PASSWORD_RIPPLE: $CONAN_PASSWORD_RIPPLE"
-
-    - name: step 1
-      if: env.OVERRIDE != ''
       shell: bash
       run: |
-        echo "This can be overridden if OVERRIDE != '' in the env"
+        echo "We ran it!!!because either was not empty!"
+        echo it was: ${{ inputs.runit }}
 
-    - name: step 2
-      if: env.OVERRIDE == ''
+    - name: OR run
+      if: env.CONAN_LOGIN_USERNAME_RIPPLE != '' || env.CONAN_PASSWORD_RIPPLE != ''
       shell: bash
       run: |
-        echo "OVERRIDE was == '' !"
-
-    - name: step 3
-      if: inputs.manual == ''
-      shell: bash
-      run: |
-        echo "The default for OVERRIDE"
-
-    - name: step 4
-      if: inputs.manual != ''
-      shell: bash
-      run: |
-        echo "manual must have been anything other than '' in the input"
+        echo "We ran it!!!because either was not empty!"
+        echo it was: ${{ inputs.runit }}

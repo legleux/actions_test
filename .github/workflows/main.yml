@@ -40,22 +40,7 @@ on:
 jobs:
   build_1:
     name: "Boolean is ${{ inputs.boolean }} or ${{ github.event.inputs.boolean  }}"
-    strategy:
-      fail-fast: false
-      matrix:
-        manual:
-          -
-          - "True"
-          - ''
-          - 'False'
-        runit:
-          - "yes"
-          - "no"
-          - "whoknows"
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -67,54 +52,5 @@ jobs:
           echo "boolean is ${{ github.event.inputs.boolean }}" / ${{ inputs.boolean }}
           echo "choice is ${{ github.event.inputs.choice }}" / ${{ inputs.choice }}
 
-      - name: build image 1
-        run: |
-          docker build . -f Dockerfile.1 -t image_1
-      - name: use action with runit=${{ matrix.runit }}
-        uses: ./.github/actions/cond
-        with:
-          condition: True
-          runit: ${{ matrix.runit }}
-          manual: ${{ matrix.manual }}
-
-  build_2:
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      - name: checkout
-        uses: actions/checkout@v4
-      - name: build image 2
-        run: |
-          docker build . -f Dockerfile.1 -t image_2
       - name: use action
         uses: ./.github/actions/cond
-        with:
-          condition: False
-          manual: ${{ matrix.manual }}
-  build_3:
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      - name: checkout
-        uses: actions/checkout@v4
-
-      - name: build image 3
-        run: |
-          docker build . -f Dockerfile.3 -t image_3
-
-  run_all:
-    runs-on: ubuntu-latest
-    needs: [build_1, build_2, build_3]
-    steps:
-      - name: checkout
-        uses: actions/checkout@v4
-
-      - name: Run them all
-        run: |
-          docker run image_1
-          docker run image_2
-          docker run image_3
