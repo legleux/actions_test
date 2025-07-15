@@ -20,16 +20,20 @@ runs:
       if: inputs.runit == 'yes'
       run: |
         echo "We ran it!!!"
+        echo it was: ${{ inputs.runit }}
+
     - name: runit with curlies
       shell: bash
       if: ${{ inputs.runit }} == 'yes'
       run: |
         echo "We ran it with curlies!!!"
+        echo it was: ${{ inputs.runit }}
     - name: runit curlies not yes
       shell: bash
       if: ${{ inputs.runit }} != 'yes'
       run: |
         echo "We ran it with curlies and not yes!!!"
+        echo it was: ${{ inputs.runit }}
 
     - name: OR confidtion
       shell: bash
