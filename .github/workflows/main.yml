@@ -39,7 +39,7 @@ on:
 
 jobs:
   build_1:
-    name: "Boolean is ${{ github.event.inputs.boolean }}"
+    name: "Boolean is ${{ inputs.boolean }}"
     strategy:
       fail-fast: false
       matrix:
