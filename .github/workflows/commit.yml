@@ -1,0 +1,39 @@
+name: PR Label Action
+
+
+on:
+  push:
+  pull_request:
+    types:
+      - labeled  # Runs when any label is added to a PR
+
+jobs:
+  react-to-label:
+    runs-on: ubuntu-latest
+    permissions:
+        contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check which label was added
+        if: github.event.label.name == 'deploy'
+        run: echo "Deploy label detected! Running deployment job..."
+
+      - name: Check which label was added
+        id: commit
+        if: github.event.label.name == 'commit'
+        run: |
+            echo "commit label detected! Making a commit!"
+            x=$(date)
+            echo "commit=${x}" >> $GITHUB_OUTPUT
+
+      # Other steps that change files in the repository
+      - name: touch file
+        if: github.event.label.name == 'commit'
+
+        run: |
+         touch ${{ steps.commit.outputs.commit }}
+
+      - name: commit
+        if: github.event.label.name == 'commit'
+        uses: stefanzweifel/git-auto-commit-action@v5
