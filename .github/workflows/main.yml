@@ -2,8 +2,7 @@ name: Test tings
 env:
   DEFAULT_WORKLOAD_COMMIT: main
   NUM_VALIDATORS: 5
-  CONAN_LOGIN_USERNAME_RIPPLE: ${{ vars.CONAN_LOGIN_USERNAME_RIPPLE }}
-  CONAN_PASSWORD_RIPPLE: ${{ vars.CONAN_PASSWORD_RIPPLE }}
+
 on:
   push:
   workflow_dispatch:
@@ -39,7 +38,29 @@ on:
         type: string
 
 jobs:
-  build_1:
+  build_deps:
+    runs-on: ubuntu-latest
+    container: ghcr.io/xrplf/ci/debian-bookworm:clang-16
+    steps:
+      - name: generate dependencies
+        id: deps
+        run: |
+          mkdir deps
+          touch deps/{a,b,c}
+          hash=$(find deps -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum  | awk '{print $1}')
+          echo "hash: $hash"
+          echo "hash=$hash" >> $GITHUB_OUTPUT
+
+      - name: Cache dependencies
+        id: cache-deps
+        uses: actions/cache@v4
+        with:
+          path: deps
+          key: deps-${{ hashFiles('*') }}
+          restore-keys: |
+            deps-${{ steps.deps.outputs.hash }}
+
+  build:
     name: "Boolean is ${{ inputs.boolean }} or ${{ github.event.inputs.boolean  }}"
     runs-on: ubuntu-latest
     steps:
@@ -52,10 +73,3 @@ jobs:
           echo "environment is ${{ github.event.inputs.environment }} / ${{ inputs.environment }}"
           echo "boolean is ${{ github.event.inputs.boolean }}" / ${{ inputs.boolean }}
           echo "choice is ${{ github.event.inputs.choice }}" / ${{ inputs.choice }}
-
-      - name: Check env in workflow
-        run: |
-          echo "env.CONAN_LOGIN_USERNAME_RIPPLE: ${{ env.CONAN_LOGIN_USERNAME_RIPPLE }}"
-          echo "CONAN_LOGIN_USERNAME_RIPPLE: ${CONAN_LOGIN_USERNAME_RIPPLE}"
-      - name: use action
-        uses: ./.github/actions/cond

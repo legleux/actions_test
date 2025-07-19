@@ -1,36 +1,20 @@
-name: conditional step
+name: composite step
+description: A composite step
 inputs:
-  condition:
-    description: "The condition"
-    required: true
-  manual:
-    description: "A manual override"
-    default: ''
+  variable:
+    description: "A variable input"
     required: false
-  runit:
-    description: "Just runit"
-    default: ''
-    required: false
-# An implicit input is the environment variable `build_dir`.
+    default: "cool default bro"
+outputs:
+  out:
+    description: "A variable input"
+    value: ${{ steps.out.outputs.out }}
 runs:
   using: composite
   steps:
-    - name: AND run
-      if: env.CONAN_LOGIN_USERNAME_RIPPLE != '' && env.CONAN_PASSWORD_RIPPLE != ''
+    - name: Run
+      id: out
       shell: bash
       run: |
-        echo "BOTH were not empty!"
-        echo "runit was: ${{ inputs.runit }}"
-
-    - name: OR run
-      if: env.CONAN_LOGIN_USERNAME_RIPPLE != '' || env.CONAN_PASSWORD_RIPPLE != ''
-      shell: bash
-      run: |
-        echo "We ran it!!!because either was not empty!"
-        echo it was: ${{ inputs.runit }}
-
-    - name: sanity check
-      shell: bash
-      run: |
-        echo "env.CONAN_LOGIN_USERNAME_RIPPLE: ${{ env.CONAN_LOGIN_USERNAME_RIPPLE }}"
-        echo "CONAN_LOGIN_USERNAME_RIPPLE: ${CONAN_LOGIN_USERNAME_RIPPLE}"
+        echo "I run with ${{ inputs.var }}"
+        echo "out=123" >> $GITHUB_OUTPUT
