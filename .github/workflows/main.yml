@@ -40,7 +40,8 @@ on:
 jobs:
   build_deps:
     runs-on: ubuntu-latest
-    container: ghcr.io/xrplf/ci/debian-bookworm:clang-16
+    # container: ghcr.io/xrplf/ci/debian-bookworm:clang-16
+    container: ghcr.io/xrplf/ci/ubuntu-jammy:gcc-12
     steps:
       - uses: actions/checkout@v1
       - name: generate dependencies
