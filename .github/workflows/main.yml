@@ -50,7 +50,8 @@ jobs:
         run: |
           conan remote add --index 0 ripple http://18.143.149.228:8081/artifactory/api/conan/dev
           git clone --depth 1 https://github.com/legleux/rippled.git
-          conan install rippled  --build missing
+          cp conan.lock rippled
+          conan install rippled --build missing
           # mkdir deps
           # touch deps/{a,b,c}
           dir=$(conan config home)/profiles
