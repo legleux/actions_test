@@ -42,7 +42,9 @@ jobs:
     runs-on: ubuntu-latest
     container: ghcr.io/xrplf/ci/debian-bookworm:clang-16
     steps:
+      - uses: actions/checkout@v1
       - name: generate dependencies
+        working-directory: /home/ci
         id: deps
         run: |
           echo $PWD
