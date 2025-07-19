@@ -50,6 +50,13 @@ jobs:
         run: |
           conan remote add --index 0 ripple http://18.143.149.228:8081/artifactory/api/conan/dev
           git clone --depth 1 https://github.com/legleux/rippled.git
+          profile=$1
+          conan graph info . --format text \
+            | awk '
+              /^Reference:/      { sub(/^Reference:/, ""); ref=$0 }
+              /^Binary status:/  { sub(/^Binary status:/, ""); if ($0 == "Missing") print ref }
+            '
+          exit 0
           cp conan.lock rippled
           conan install rippled --build missing
           # mkdir deps
