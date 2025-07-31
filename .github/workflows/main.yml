@@ -34,7 +34,9 @@ jobs:
           REPO: "${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.rippled_repo) || env.DEFAULT_REPO }}"
 
         run: |
-          echo "rippled_commit_id=$(git ls-remote --heads $REPO $COMMIT | cut -f 1)" >> $GITHUB_OUTPUT
+          commit=$(git ls-remote --heads $REPO $COMMIT | cut -f 1)
+          echo "got commit: --${commit}--"
+          echo "rippled_commit_id=${commit}" >> $GITHUB_OUTPUT
 
       - name: use built image
         id: rippled_image_cache
