@@ -49,6 +49,7 @@ jobs:
           COMMIT: "${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.rippled_commit) || env.DEFAULT_COMMIT }}"
         run: |
           set -x
+          echo "trying again"
           echo "Hopefully _not_ building image"
           image="${{ steps.rippled_commit_id.outputs.rippled_commit_id }}-image"
           image_dir="image_dir"
