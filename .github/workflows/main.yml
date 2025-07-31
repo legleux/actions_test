@@ -17,6 +17,7 @@ on:
 
 env:
   DEFAULT_COMMIT: develop
+  DEFAULT_REPO: "https://github.com/XRPLF/rippled.git"
 
 jobs:
   build_deps:
@@ -30,6 +31,7 @@ jobs:
         id: rippled_commit_id
         env:
           COMMIT: "${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.rippled_commit) || env.DEFAULT_COMMIT }}"
+          REPO: "${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.rippled_repo) || env.DEFAULT_REPO }}"
 
         run: |
           echo "rippled_commit_id=$(git ls-remote --heads $REPO $COMMIT | cut -f 1)" >> $GITHUB_OUTPUT
