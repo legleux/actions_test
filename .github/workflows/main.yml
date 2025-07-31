@@ -40,7 +40,7 @@ jobs:
         id: rippled_image_cache
         uses: actions/cache@v4
         with:
-          path: rippled_image
+          path: image_dir
           key: rippled-${{ steps.rippled_commit_id.outputs.rippled_commit_id }}
 
       - name: build rippled
