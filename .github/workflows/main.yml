@@ -1,7 +1,4 @@
-name: Test tings
-env:
-  DEFAULT_WORKLOAD_COMMIT: main
-  NUM_VALIDATORS: 5
+name: Test cache
 
 on:
   push:
@@ -17,74 +14,43 @@ on:
         default: develop
         required: true
         type: string
-      environment:
-        type: environment
-        description: Select the environment
-      boolean:
-        type: boolean
-        description: True or False
-        default: True
-      choice:
-        type: choice
-        description: Make a choice
-        options:
-        - foo
-        - bar
-        - baz
-      workload_commit:
-        description: 'Git workload branch/commit'
-        default: main
-        required: true
-        type: string
+
+env:
+  DEFAULT_COMMIT: develop
 
 jobs:
   build_deps:
-    runs-on: [self-hosted]
+    runs-on: ubuntu-latest
     # container: ghcr.io/xrplf/ci/debian-bookworm:clang-16
-    container: ghcr.io/xrplf/ci/ubuntu-jammy:gcc-12
+    # container: ghcr.io/xrplf/ci/ubuntu-jammy:gcc-12
     steps:
       - uses: actions/checkout@v1
-      - name: generate dependencies
-        # working-directory: /home/ci
-        id: deps
-        run: |
-          conan remote add --index 0 ripple http://18.143.149.228:8081/artifactory/api/conan/dev
-          git clone --depth 1 https://github.com/legleux/rippled.git
-          profile=$1
-          conan graph info rippled --format text \
-            | awk '
-              /^Reference:/      { sub(/^Reference:/, ""); ref=$0 }
-              /^Binary status:/  { sub(/^Binary status:/, ""); if ($0 == "Missing") print ref }
-            '
-          exit 0
-          cp conan.lock rippled
-          conan install rippled --build missing
-          # mkdir deps
-          # touch deps/{a,b,c}
-          dir=$(conan config home)/profiles
-          hash=$(find $dir -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum  | awk '{print $1}')
-          echo "hash: $hash"
-          echo "hash=$hash" >> $GITHUB_OUTPUT
 
-      - name: Cache dependencies
-        id: cache-deps
+      - name: get rippled commit id
+        id: rippled_commit_id
+        env:
+          COMMIT: "${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.rippled_commit) || env.DEFAULT_COMMIT }}"
+
+        run: |
+          echo "rippled_commit_id=$(git ls-remote --heads $REPO $COMMIT | cut -f 1)" >> $GITHUB_OUTPUT
+
+      - name: use built image
+        id: rippled_image_cache
         uses: actions/cache@v4
         with:
-          path: deps
-          key: deps-${{ hashFiles('*') }}
-          restore-keys: |
-            deps-${{ steps.deps.outputs.hash }}
+          path: rippled_image
+          key: rippled-${{ steps.rippled_commit_id.outputs.rippled_commit_id }}
 
-  build:
-    name: "Boolean is ${{ inputs.boolean }} or ${{ github.event.inputs.boolean  }}"
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout
-        uses: actions/checkout@v4
-
-      - name: "Inputs: ${{ inputs.boolean }} or ${{ github.event.inputs.boolean  }}"
-
+      - name: build rippled
+        if: steps.rippled_image_cache.outputs.cache-hit != 'true'
+        env:
+          COMMIT: "${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.rippled_commit) || env.DEFAULT_COMMIT }}"
         run: |
-          echo "environment is ${{ github.event.inputs.environment }} / ${{ inputs.environment }}"
-          echo "boolean is ${{ github.event.inputs.boolean }}" / ${{ inputs.boolean }}
-          echo "choice is ${{ github.event.inputs.choice }}" / ${{ inputs.choice }}
+          set -x
+          echo "Building image"
+          image="${COMMIT}-image"
+          image_dir="image_dir"
+          touch $image
+          echo "Created $image"
+          mkdir $image_dir && mv $image $image_dir
+          ls -l $image_dir
