@@ -18,9 +18,15 @@ on:
 env:
   DEFAULT_COMMIT: develop
   DEFAULT_REPO: "https://github.com/XRPLF/rippled.git"
+  VAR1: cool
+  VAR2: beans
+
+      - run: echo "$VAR3"
 
 jobs:
   build_deps:
+    env:
+      VAR3: ${{ env.VAR1 }}${{ env.VAR2 }}   # → "coolbeans"
     runs-on: ubuntu-latest
     # container: ghcr.io/xrplf/ci/debian-bookworm:clang-16
     # container: ghcr.io/xrplf/ci/ubuntu-jammy:gcc-12r) ||
@@ -30,10 +36,13 @@ jobs:
       - name: get rippled commit id
         id: rippled_commit_id
         env:
+          DEFAULT_COMMIT: develop
+          DEFAULT_REPO: "https://github.com/XRPLF/rippled.git"
           COMMIT: "${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.rippled_commit) || env.DEFAULT_COMMIT }}"
           REPO: "${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.rippled_repo) || env.DEFAULT_REPO }}"
 
         run: |
+          echo $VAR3
           commit=$(git ls-remote --heads $REPO $COMMIT | cut -f 1)
           echo "got commit: --${commit}--"
           echo "rippled_commit_id=${commit}" >> $GITHUB_OUTPUT
