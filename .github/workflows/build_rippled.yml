@@ -35,3 +35,29 @@ jobs:
         with:
           name: workspace_artifacts
           path: ${{ steps.build.outputs.outfile }}
+
+  container-job:
+    # Containers must run in Linux based operating systems
+    runs-on: ubuntu-latest
+    # Docker Hub image that `container-job` executes in
+    container: "python:3.13"
+
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      rippled:
+        # Docker Hub image
+        image: "rippleci/rippled:develop"
+        ports: [5005, 6006]
+        options: >-
+          --entrypoint /opt/ripple/bin/rippled -a
+    steps:
+      - run: |
+          sleep 5
+          curl rippled:5005 -d'{"method": "ledger_accept" }
+          sleep 2
+          curl rippled:5005 -d'{"method": "ledger_accept" }
+          sleep 2
+          curl rippled:5005 -d'{"method": "ledger_accept" }
+          sleep 2
+          curl rippled:5005 -d'{"method": "ledger_accept" }

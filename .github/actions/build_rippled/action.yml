@@ -18,4 +18,5 @@ runs:
   using: 'docker'
   image: 'python:3.13'
   args:
-    - python -c print(${{ inputs.git_ref }})
+    - -c
+    - 'import os; print(os.environ["INPUT_GIT_REF"])'
