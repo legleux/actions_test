@@ -21,4 +21,4 @@ runs:
     - python
     - -u
     - -c
-    - 'import os;import pathlib;Path("outfile.txt").touch();print(os.environ["INPUT_GIT_REF"])'
+    - 'import os;import pathlib;pathlib.Path("outfile.txt").touch();print(os.environ["INPUT_GIT_REF"])'
