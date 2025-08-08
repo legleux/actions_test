@@ -50,7 +50,7 @@ jobs:
         image: "rippleci/rippled:develop"
         ports: [5005, 6006]
         options: >-
-          --entrypoint /opt/ripple/bin/rippled -a
+          --entrypoint '/opt/ripple/bin/rippled -a'
     steps:
       - run: |
           sleep 5
