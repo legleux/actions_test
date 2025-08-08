@@ -21,7 +21,6 @@ env:
   VAR1: cool
   VAR2: beans
 
-      - run: echo "$VAR3"
 
 jobs:
   build_deps:
