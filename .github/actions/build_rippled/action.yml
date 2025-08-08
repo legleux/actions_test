@@ -18,5 +18,4 @@ runs:
   using: 'docker'
   image: 'python:3.13'
   args:
-    - ${{ inputs.git_ref }}
-    - ${{ inputs.data }}
+    - python -c print(${{ inputs.git_ref }})

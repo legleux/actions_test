@@ -1,3 +1,4 @@
+name: Cool job bro
 on:
   push:
   workflow_dispatch:
@@ -7,10 +8,16 @@ on:
         required: false
         default: "develop"
         type: string
+      data:
+        description: 'Some input data'
+        required: false
+        default: 'cool beans'
+        type: string
+
 jobs:
   build_rippled:
     runs-on: ubuntu-latest
-    name: A job build and executable
+    name: A job to build an executable
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -19,9 +26,9 @@ jobs:
         uses: ./.github/actions/build_rippled
         with:
           git_ref: ${{ inputs.git_ref }}
-          data: "cool"
+          data: ${{ inputs.data }}
       # Use the output from the `hello` step
-      - name: Get the output time
+      - name: Get the result
         run: echo "The time was ${{ steps.build.outputs.result }}"
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
