@@ -29,12 +29,14 @@ jobs:
           data: ${{ inputs.data }}
       # Use the output from the `hello` step
       - name: Get the result
-        run: echo "The time was ${{ steps.build.outputs.result }}"
+        run: |
+          ls -lash
+          echo "The time was ${{ steps.build.outputs.result }}"
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: workspace_artifacts
-          path: ${{ steps.build.outputs.outfile }}
+          path: outfile.txt
 
   container-job:
     # Containers must run in Linux based operating systems
