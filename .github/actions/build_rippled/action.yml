@@ -5,11 +5,18 @@ inputs:
     description: 'commit-ish to build'
     required: false
     default: 'develop'
+  data:
+    description: 'Some input data'
+    required: false
+    default: 'cool beans'
 outputs:
-  result: # id of output
+  result:
     description: 'Wha hoppened?'
+  outfile_path:
+    description: 'the filename we created'
 runs:
   using: 'docker'
   image: 'python:3.13'
   args:
     - ${{ inputs.git_ref }}
+    - ${{ inputs.data }}

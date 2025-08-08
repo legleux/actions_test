@@ -8,17 +8,23 @@ on:
         default: "develop"
         type: string
 jobs:
-  hello_world_job:
+  build_rippled:
     runs-on: ubuntu-latest
-    name: A job to say hello
+    name: A job build and executable
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Hello world action step
+      - name: build rippled
         id: build
         uses: ./.github/actions/build_rippled
         with:
           git_ref: ${{ inputs.git_ref }}
+          data: "cool"
       # Use the output from the `hello` step
       - name: Get the output time
         run: echo "The time was ${{ steps.build.outputs.result }}"
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: workspace_artifacts
+          path: ${{ steps.build.outputs.outfile }}
