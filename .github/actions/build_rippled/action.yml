@@ -17,8 +17,10 @@ outputs:
 runs:
   using: 'docker'
   image: 'python:3.13'
+  env:
+      PYTHONUNBUFFERED: "1"
+      VAR: "cool"
   args:
     - python
-    - -u
     - -c
-    - 'import os;import pathlib;pathlib.Path("outfile.txt").touch();print(os.environ["INPUT_GIT_REF"])'
+    - 'import os;import pathlib;pathlib.Path("outfile.txt").touch();print(os.environ["INPUT_GIT_REF"]);print(os.environ["VAR"])'
