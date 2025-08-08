@@ -49,15 +49,9 @@ jobs:
         # Docker Hub image
         image: "rippleci/rippled:develop"
         ports: [5005, 6006]
-        options: >-
-          --entrypoint '/opt/ripple/bin/rippled -a'
+        # options: >-
+        #   --entrypoint 'bash -c "rippled -a"'
     steps:
       - run: |
-          sleep 5
-          curl rippled:5005 -d'{"method": "ledger_accept" }
-          sleep 2
-          curl rippled:5005 -d'{"method": "ledger_accept" }
-          sleep 2
-          curl rippled:5005 -d'{"method": "ledger_accept" }
-          sleep 2
-          curl rippled:5005 -d'{"method": "ledger_accept" }
+          sleep 60
+          curl rippled:5005 -d'{"method": "server_info" }
