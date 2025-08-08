@@ -54,4 +54,4 @@ jobs:
     steps:
       - run: |
           sleep 60
-          curl rippled:5005 -d'{"method": "server_info" }
+          curl rippled:5005 -d'{"method": "server_info" }'

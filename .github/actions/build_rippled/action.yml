@@ -19,5 +19,6 @@ runs:
   image: 'python:3.13'
   args:
     - python
+    - -u
     - -c
-    - 'import os; print(os.environ["INPUT_GIT_REF"])'
+    - 'import os;import pathlib;Path("outfile.txt").touch();print(os.environ["INPUT_GIT_REF"])'
