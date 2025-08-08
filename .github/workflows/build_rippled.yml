@@ -1,0 +1,22 @@
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      git_ref:
+        description: "commit-ish to build"
+        required: false
+        default: "develop"
+        type: string
+jobs:
+  hello_world_job:
+    runs-on: ubuntu-latest
+    name: A job to say hello
+    steps:
+      - name: Hello world action step
+        id: build
+        uses: ./.github/actions/build_rippled
+        with:
+          git_ref: ${{ inputs.git_ref }}
+      # Use the output from the `hello` step
+      - name: Get the output time
+        run: echo "The time was ${{ steps.build.outputs.result }}"

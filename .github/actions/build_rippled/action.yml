@@ -1,0 +1,15 @@
+name: 'Build rippled'
+description: 'do it'
+inputs:
+  git_ref:
+    description: 'commit-ish to build'
+    required: false
+    default: 'develop'
+outputs:
+  result: # id of output
+    description: 'Wha hoppened?'
+runs:
+  using: 'docker'
+  image: 'python:3.13'
+  args:
+    - ${{ inputs.git_ref }}
