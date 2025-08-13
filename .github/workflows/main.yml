@@ -65,3 +65,12 @@ jobs:
           echo "Created $image"
           mkdir $image_dir && mv $image $image_dir
           ls -l $image_dir
+
+      - name: fake pkg build
+        run: mkdir build && touch build/202508-pkg-name.deb
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: package
+          path: build/*.deb
