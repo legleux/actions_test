@@ -27,11 +27,7 @@ jobs:
   build:
     strategy:
       fail-fast: false
-    strategy:
-      matrix:
-        ro:
-          - "heavy-arm64"
-          - "heavy"
+
       matrix:
         architecture:
           - platform: linux/amd64
