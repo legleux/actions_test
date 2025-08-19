@@ -1,0 +1,9 @@
+FROM ghcr.io/xrplf/ci/ubuntu-jammy:gcc-12 AS build
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+RUN echo "I am running on $BUILDPLATFORM, building for $TARGETPLATFORM"
+ENV DEBIAN_FRONTEND=noninteractive
+
+COPY ma_src /root/app
+WORKDIR /root/app
+RUN mkdir build && cd build  && cmake .. && cmake --build .
