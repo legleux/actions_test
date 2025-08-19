@@ -13,5 +13,5 @@ jobs:
   test_ma_build:
     uses: ./.github/workflows/ma_build_rw.yml
     with:
-      runs_on: ubuntu-latest
+      runs_on: "[self-hosted, heavy]"
       branch: ${{ inputs.branch }}

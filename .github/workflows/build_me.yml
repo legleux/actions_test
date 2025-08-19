@@ -18,7 +18,7 @@ defaults:
 jobs:
   build:
     name: Build ${{ inputs.branch }} branch
-    runs-on: ${{ inputs.runs_on }}
+    runs-on: toJSON(${{ inputs.runs_on }})
 
     steps:
       - uses: actions/checkout@v4
