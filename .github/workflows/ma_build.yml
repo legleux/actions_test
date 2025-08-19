@@ -60,7 +60,6 @@ jobs:
 
       - name: Check
         run: |
-          conan version
           # Convert the repository name to lowercase as the organization name is
           # uppercase, which is not permitted by the Docker registry. It's 2025 and GitHub
           # still does not provide convenient action expression syntax for lowercase.
