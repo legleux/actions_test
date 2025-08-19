@@ -23,9 +23,14 @@ env:
 
 
 jobs:
-  build_deps:
 
-    runs-on: [self-hosted, heavy-arm64]
+  build_deps:
+    strategy:
+      matrix:
+        ro:
+          - "heavy-arm64"
+          - "heavy"
+    runs-on: ["${{ matrix.ro}}"]
     # container: ghcr.io/xrplf/ci/debian-bookworm:clang-16
     # container: ghcr.io/xrplf/ci/ubuntu-jammy:gcc-12r) ||
     steps:
