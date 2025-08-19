@@ -27,12 +27,19 @@ jobs:
   build:
     strategy:
       fail-fast: false
+    strategy:
+      matrix:
+        ro:
+          - "heavy-arm64"
+          - "heavy"
       matrix:
         architecture:
           - platform: linux/amd64
-            runner: ubuntu-24.04
+            # runner: ubuntu-24.04
+            runner: heavy
           - platform: linux/arm64
-            runner: ubuntu-24.04-arm
+            # runner: ubuntu-24.04-arm
+            runner: "heavy-arm64"
         os:
           - release: jammy
             compiler_name: gcc
