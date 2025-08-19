@@ -150,7 +150,7 @@ jobs:
         run: |
           GITHUB_REPO=${{ github.repository }}
           CONTAINER_REPO=${GITHUB_REPO@L}
-          echo "CONTAINER_IMAGE=${CONTAINER_REGISTRY}/${CONTAINER_REPO}/debian-${{ matrix.os.release }}" >> $GITHUB_ENV
+          echo "CONTAINER_IMAGE=${CONTAINER_REGISTRY}/${CONTAINER_REPO}/test-${{ matrix.os.release }}" >> $GITHUB_ENV
       - name: Prepare container metadata
         id: meta
         uses: docker/metadata-action@v5
