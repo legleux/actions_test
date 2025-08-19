@@ -115,85 +115,59 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-#   merge:
-#     if: ${{ github.ref_type == 'branch' && github.ref_name == github.event.repository.default_branch }}
-#     strategy:
-#       matrix:
-#         os:
-#           - release: bullseye
-#             compiler_name: gcc
-#             compiler_version: 12
-#           - release: bookworm
-#             compiler_name: gcc
-#             compiler_version: 12
-#           - release: bookworm
-#             compiler_name: gcc
-#             compiler_version: 13
-#           - release: bookworm
-#             compiler_name: gcc
-#             compiler_version: 14
-#           - release: bookworm
-#             compiler_name: gcc
-#             compiler_version: 15
-#           - release: bookworm
-#             compiler_name: clang
-#             compiler_version: 16
-#           - release: bookworm
-#             compiler_name: clang
-#             compiler_version: 17
-#           - release: bookworm
-#             compiler_name: clang
-#             compiler_version: 18
-#           - release: bookworm
-#             compiler_name: clang
-#             compiler_version: 19
-#           - release: bookworm
-#             compiler_name: clang
-#             compiler_version: 20
-#     runs-on: ubuntu-24.04
-#     needs:
-#       - build
-#     permissions:
-#       packages: write
-#     steps:
-#       - name: Checkout repository
-#         uses: actions/checkout@v4
-#       - name: Download digests
-#         uses: actions/download-artifact@v4
-#         with:
-#           path: /tmp/digests
-#           pattern: digests-${{ matrix.os.release }}-${{ matrix.os.compiler_name }}-${{ matrix.os.compiler_version }}-*
-#           merge-multiple: true
-#       - name: Set up Docker Buildx
-#         uses: docker/setup-buildx-action@v3
-#       - name: Login to GitHub Registry
-#         uses: docker/login-action@v3
-#         with:
-#           registry: ${{ env.CONTAINER_REGISTRY }}
-#           username: ${{ github.repository_owner }}
-#           password: ${{ secrets.GITHUB_TOKEN  }}
-#       - name: Prepare environment
-#         run: |
-#           GITHUB_REPO=${{ github.repository }}
-#           CONTAINER_REPO=${GITHUB_REPO@L}
-#           echo "CONTAINER_IMAGE=${CONTAINER_REGISTRY}/${CONTAINER_REPO}/debian-${{ matrix.os.release }}" >> $GITHUB_ENV
-#       - name: Prepare container metadata
-#         id: meta
-#         uses: docker/metadata-action@v5
-#         env:
-#           DOCKER_METADATA_ANNOTATIONS_LEVELS: index
-#         with:
-#           images: ${{ env.CONTAINER_IMAGE }}
-#           tags: |
-#             type=raw,value=${{ matrix.os.compiler_name }}-${{ matrix.os.compiler_version }}
-#             type=sha,prefix=${{ matrix.os.compiler_name }}-${{ matrix.os.compiler_version }}-sha-
-#       - name: Create manifest list and push
-#         working-directory: /tmp/digests
-#         run: |
-#           eval "docker buildx imagetools create \
-#             $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-#             $(jq -cr '.annotations | map("--annotation \"" + . + "\"") | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-#             $(printf '${{ env.CONTAINER_IMAGE }}@sha256:%s ' *)"
-#       - name: Inspect image
-#         run: |
-#           docker buildx imagetools inspect ${{ env.CONTAINER_IMAGE }}:${{ steps.meta.outputs.version }}
+   merge:
+     if: ${{ github.ref_type == 'branch' && github.ref_name == github.event.repository.default_branch }}
+     strategy:
+       matrix:
+         os:
+           - release: jammy
+             compiler_name: gcc
+             compiler_version: 12
+
+     runs-on: ubuntu-24.04
+     needs:
+       - build
+     permissions:
+       packages: write
+     steps:
+       - name: Checkout repository
+         uses: actions/checkout@v4
+       - name: Download digests
+         uses: actions/download-artifact@v4
+         with:
+           path: /tmp/digests
+           pattern: digests-${{ matrix.os.release }}-${{ matrix.os.compiler_name }}-${{ matrix.os.compiler_version }}-*
+           merge-multiple: true
+       - name: Set up Docker Buildx
+         uses: docker/setup-buildx-action@v3
+       - name: Login to GitHub Registry
+         uses: docker/login-action@v3
+         with:
+           registry: ${{ env.CONTAINER_REGISTRY }}
+           username: ${{ github.repository_owner }}
+           password: ${{ secrets.GITHUB_TOKEN  }}
+       - name: Prepare environment
+         run: |
+           GITHUB_REPO=${{ github.repository }}
+           CONTAINER_REPO=${GITHUB_REPO@L}
+           echo "CONTAINER_IMAGE=${CONTAINER_REGISTRY}/${CONTAINER_REPO}/debian-${{ matrix.os.release }}" >> $GITHUB_ENV
+       - name: Prepare container metadata
+         id: meta
+         uses: docker/metadata-action@v5
+         env:
+           DOCKER_METADATA_ANNOTATIONS_LEVELS: index
+         with:
+           images: ${{ env.CONTAINER_IMAGE }}
+           tags: |
+             type=raw,value=${{ matrix.os.compiler_name }}-${{ matrix.os.compiler_version }}
+             type=sha,prefix=${{ matrix.os.compiler_name }}-${{ matrix.os.compiler_version }}-
+       - name: Create manifest list and push
+         working-directory: /tmp/digests
+         run: |
+           eval "docker buildx imagetools create \
+             $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+             $(jq -cr '.annotations | map("--annotation \"" + . + "\"") | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+             $(printf '${{ env.CONTAINER_IMAGE }}@sha256:%s ' *)"
+       - name: Inspect image
+         run: |
+           docker buildx imagetools inspect ${{ env.CONTAINER_IMAGE }}:${{ steps.meta.outputs.version }}
