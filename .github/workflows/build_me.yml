@@ -12,10 +12,12 @@ on:
         description: "The container object as a JSON string (leave empty to run natively)"
         required: true
         type: string
-
+defaults:
+  run:
+    shell: bash
 jobs:
   build:
-    name: Build
+    name: Build ${{ inputs.branch }} branch
     runs-on: ${{ inputs.runs_on }}
 
     steps:
