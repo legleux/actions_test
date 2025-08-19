@@ -35,7 +35,7 @@ jobs:
             runner: heavy
           - platform: linux/arm64
             # runner: ubuntu-24.04-arm
-            runner: "heavy-arm64"
+            runner: heavy-arm64
         os:
           - release: jammy
             compiler_name: gcc
@@ -43,7 +43,7 @@ jobs:
         #   - release: bullseye
         #     compiler_name: gcc
         #     compiler_version: 12
-    runs-on: ${{ matrix.architecture.runner }}
+    runs-on: ["${{ matrix.architecture.runner }}"]
     # container:
         # image: ghcr.io/xrplf/ci/ubuntu-${{ matrix.os.release }}:${{ matrix.os.compiler_name }}-${{ matrix.os.compiler_version}}
     permissions:
