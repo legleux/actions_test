@@ -1,0 +1,24 @@
+# This workflow runs all workflows to build the dependencies required for the
+# project on various Linux flavors, as well as on MacOS and Windows, on a
+# scheduled basis, on merge into the 'develop', 'release', or 'master' branches,
+# or manually. The missing commits check is only run when the code is merged
+# into the 'develop' or 'release' branches, and the documentation is built when
+# the code is merged into the 'develop' branch.
+name: Trigger
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build-package:
+    uses: ./.github/workflows/reusable-build-pkg.yml
