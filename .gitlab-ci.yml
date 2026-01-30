@@ -146,7 +146,7 @@ build_packages:
   timeout: 1h 30m
   stage: build_packages
   image:
-    name: ubuntu:noble
+    name: ghcr.io/xrplf/ci/ubuntu-jammy:gcc-12
 
     # name: ${build_image}
     entrypoint: [""]
