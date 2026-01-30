@@ -74,8 +74,8 @@ get_rippled:
   script: |
     set -x
     apk add git
-    git clone ${rippled_url} rippled
-    cd rippled && git checkout ${rippled_branch}
+    git clone https://github.com/xrplf/rippled rippled
+    cd rippled && git checkout develop
     git fetch --tags
     rippled_git_hash=$(git rev-parse HEAD) && echo $rippled_git_hash
     git_tag=$(git tag --points-at HEAD)
