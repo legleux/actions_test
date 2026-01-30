@@ -47,6 +47,28 @@ variables:
   <<: *smoketest
   script: . ./gitlab-ci/smoketest.sh repo
 
+
+.dind_template: &dind_param
+  # rules:
+    # - if: $CI_PROJECT_NAME == "pkg-push-test" && $CI_PIPELINE_SOURCE =~ "pipeline|web"
+  before_script: |
+    docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+  variables:
+    docker_driver: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  image:
+    name: artifactory.ops.ripple.com/docker:latest
+    # name: docker:latest
+  services:
+    # workaround for TLS issues - consider going back
+    # back to unversioned `dind` when issues are resolved
+    # https://about.gitlab.com/blog/2019/07/31/docker-in-docker-with-docker-19-dot-03/
+    # - name: artifactory.ops.ripple.com/docker:stable-dind
+    - name: docker:stable-dind
+      alias: docker
+  tags:
+    - 4xlarge
+
 build_image:
   stage: build_packages
   needs:
