@@ -1,10 +1,3 @@
-workflow:
-  rules:
-    - if: $CI_PIPELINE_SOURCE =~ '/pipeline|web/i'
-
-default:
-  retry: 2
-
 stages:
   - build_packages
   - push_image
@@ -108,7 +101,7 @@ build_packages:
   timeout: 1h 30m
   stage: build_packages
   image:
-    name: ubuntu:noble
+    name: artifactory.ops.ripple.com:6555/ubuntu:noble
     # name: ${build_image}
     entrypoint: [""]
   script: |
