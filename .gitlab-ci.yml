@@ -94,12 +94,16 @@ get_rippled:
 
 build_image:
   stage: build_packages
-  needs:
-    - job: get_rippled
-      artifacts: true
+  # needs:
+  #   - job: get_rippled
+  #     artifacts: true
   # <<: *dind_param
   # <<: *only_primary
-
+  image: docker
+  services:
+    - name: docker:stable-dind
+    # - name: docker:dind
+      alias: docker
   script: |
     echo "CI_COMMIT_SHA: $CI_COMMIT_SHA"
     echo "CI_COMMIT_REF_NAME: $CI_COMMIT_REF_NAME"
