@@ -100,15 +100,18 @@ build_image:
   # <<: *dind_param
   # <<: *only_primary
   variables:
+    DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
+    DOCKER_BUILDKIT: "1"
+
     # docker_driver: overlay2
     # DOCKER_HOST: "tcp://docker:2375"
-  image: docker
+  image: docker:24.0.6
   services:
-    - name: docker:stable-dind
-    # - name: docker:dind
-      alias: docker
+    - docker:24.0.6-dind
   script: |
+    docker version
+    docker buildx version || true
     echo "git_commit=fe9c8d568fcf6ac21483024e01f58962dd5c8260" > ./build.env
     echo "CI_COMMIT_SHA: $CI_COMMIT_SHA"
     echo "CI_COMMIT_REF_NAME: $CI_COMMIT_REF_NAME"
@@ -147,16 +150,6 @@ build_image:
     matrix:
       - ARCH: amd
         RUNNER_TAG: docker-4xlarge
-      - ARCH: amd
-        RUNNER_TAG: docker-large
-      - ARCH: amd
-        RUNNER_TAG: general
-      - ARCH: amd
-        RUNNER_TAG: large-dev
-      - ARCH: amd
-        RUNNER_TAG: high-iops
-      - ARCH: amd
-        RUNNER_TAG: ripplex-build
       - ARCH: arm
         RUNNER_TAG: arm
   tags:
