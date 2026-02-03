@@ -68,25 +68,25 @@ variables:
   tags:
     - 4xlarge
 
-get_rippled:
-  stage: build_packages
-  image: alpine:3
-  script: |
-    set -x
-    apk add git
-    git clone https://github.com/xrplf/rippled rippled
-    cd rippled && git checkout develop
-    git fetch --tags
-    rippled_git_hash=$(git rev-parse HEAD) && echo $rippled_git_hash
-    git_tag=$(git tag --points-at HEAD)
-    cd ..
-    echo "rippled_git_hash=$rippled_git_hash" >> build.env
-    echo "rippled_branch=$rippled_branch" >> build.env
-    if [ -n "${git_tag}" ]; then
-        echo "We're tagged ${git_tag}"
-        echo "git_tag=$git_tag" >> build.env
-    fi
-    cat build.env
+# get_rippled:
+#   stage: build_packages
+#   image: alpine:3
+#   script: |
+#     set -x
+#     apk add git
+#     git clone --depth 1 --branch develop https://github.com/xrplf/rippled
+#     cd rippled && git checkout develop
+#     git fetch --tags
+#     rippled_git_hash=$(git rev-parse HEAD) && echo $rippled_git_hash
+#     git_tag=$(git tag --points-at HEAD)
+#     cd ..
+#     echo "rippled_git_hash=$rippled_git_hash" >> build.env
+#     echo "rippled_branch=$rippled_branch" >> build.env
+#     if [ -n "${git_tag}" ]; then
+#         echo "We're tagged ${git_tag}"
+#         echo "git_tag=$git_tag" >> build.env
+#     fi
+#     cat build.env
 
   artifacts:
     paths:
@@ -94,21 +94,22 @@ get_rippled:
 
 build_image:
   stage: build_packages
-  needs:
-    - job: get_rippled
-      artifacts: true
+  # needs:
+  #   - job: get_rippled
+  #     artifacts: true
   # <<: *dind_param
   # <<: *only_primary
   variables:
-    docker_driver: overlay2
-    DOCKER_HOST: "tcp://docker:2375"
     DOCKER_TLS_CERTDIR: ""
+    # docker_driver: overlay2
+    # DOCKER_HOST: "tcp://docker:2375"
   image: docker
   services:
     - name: docker:stable-dind
     # - name: docker:dind
       alias: docker
   script: |
+    echo "git_commit=fe9c8d568fcf6ac21483024e01f58962dd5c8260" > ./build.env
     echo "CI_COMMIT_SHA: $CI_COMMIT_SHA"
     echo "CI_COMMIT_REF_NAME: $CI_COMMIT_REF_NAME"
     echo "CI_COMMIT_BRANCH: $CI_COMMIT_BRANCH"
