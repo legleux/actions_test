@@ -109,11 +109,15 @@ build_image:
   #     command: ["--tls=false"]
 
   variables:
+    DOCKER_BUILDKIT: "1"
     # DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: "/certs"
+    # DOCKER_TLS_CERTDIR: "/certs"
     # DOCKER_DRIVER: overlay2
-    # DOCKER_BUILDKIT: "1"
   script: |
+    echo "DOCKER_HOST=$DOCKER_HOST"
+    getent hosts docker
+    nc -zv docker 2375 || true
+    docker info
     docker version
     docker buildx version || true
     echo "git_commit=fe9c8d568fcf6ac21483024e01f58962dd5c8260" > ./build.env
