@@ -106,9 +106,14 @@ build_image:
 
     # docker_driver: overlay2
     # DOCKER_HOST: "tcp://docker:2375"
-  image: docker:24.0.6
+
   services:
-    - docker:24.0.6-dind
+    - name: docker:24.0.5-dind
+      alias: docker
+      command: ["--host=tcp://0.0.0.0:2375", "--tls=false"]
+  # image: docker:24.0.6
+  # services:
+  #   - docker:24.0.6-dind
   script: |
     docker version
     docker buildx version || true
