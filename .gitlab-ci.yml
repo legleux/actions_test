@@ -99,6 +99,10 @@ build_image:
   #     artifacts: true
   # <<: *dind_param
   # <<: *only_primary
+  variables:
+    docker_driver: overlay2
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
   image: docker
   services:
     - name: docker:stable-dind
@@ -153,7 +157,7 @@ build_image:
       - ARCH: amd
         RUNNER_TAG: ripplex-build
       - ARCH: arm
-        RUNNER_TAG: mine
+        RUNNER_TAG: arm
   tags:
     - ${RUNNER_TAG}
 
