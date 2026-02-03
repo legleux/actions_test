@@ -1,3 +1,10 @@
+default:
+  image: docker:24.0.5-cli
+  services:
+    - docker:24.0.5-dind
+  before_script:
+    - docker info
+
 stages:
   - build_packages
   # - push_image
@@ -94,26 +101,18 @@ variables:
 
 build_image:
   stage: build_packages
-  # needs:
-  #   - job: get_rippled
-  #     artifacts: true
-  # <<: *dind_param
-  # <<: *only_primary
-  variables:
-    DOCKER_BUILDKIT: "1"
-    # DOCKER_HOST: tcp://docker:2375
-    # DOCKER_TLS_CERTDIR: ""
+  # image: docker:24.0.5-cli
 
-    # docker_driver: overlay2
-    # DOCKER_HOST: "tcp://docker:2375"
-
-  services:
-    - name: docker:24.0.5-dind
-      alias: docker
-      command: ["--host=tcp://0.0.0.0:2375", "--tls=false"]
-  # image: docker:24.0.6
   # services:
-  #   - docker:24.0.6-dind
+  #   - name: docker:24.0.5-dind
+  #     alias: docker
+  #     command: ["--tls=false"]
+
+  variables:
+    # DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: "/certs"
+    # DOCKER_DRIVER: overlay2
+    # DOCKER_BUILDKIT: "1"
   script: |
     docker version
     docker buildx version || true
