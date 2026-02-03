@@ -94,9 +94,9 @@ get_rippled:
 
 build_image:
   stage: build_packages
-  # needs:
-  #   - job: get_rippled
-  #     artifacts: true
+  needs:
+    - job: get_rippled
+      artifacts: true
   # <<: *dind_param
   # <<: *only_primary
   variables:
