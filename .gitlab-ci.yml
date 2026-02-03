@@ -100,9 +100,9 @@ build_image:
   # <<: *dind_param
   # <<: *only_primary
   variables:
-    # DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
     DOCKER_BUILDKIT: "1"
+    # DOCKER_HOST: tcp://docker:2375
+    # DOCKER_TLS_CERTDIR: ""
 
     # docker_driver: overlay2
     # DOCKER_HOST: "tcp://docker:2375"
