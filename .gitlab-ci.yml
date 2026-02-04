@@ -73,7 +73,7 @@ trigger_package_build:
   rules:
     - if: $CI_PROJECT_NAME != "pkg_build"
       when: never
-    - if: $CI_COMMIT_TAG =~ /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-((b|rc|hf)([0-9]+)))?$/
+    - if: $CI_COMMIT_TAG =~ /^\d+\.\d+\.\d+(?:-(?:b|rc)\d+
       variables:
         WORKFLOW_NAME: "$CI_COMMIT_TAG - $CI_COMMIT_SHORT_SHA"
     - if: $CI_COMMIT_BRANCH == "main"
@@ -88,7 +88,6 @@ trigger_package_build:
   trigger:
     project: ripple/xrpledger/pipeline
     strategy: depend
-
 
 build_packages:
   extends: .pkg_rule
