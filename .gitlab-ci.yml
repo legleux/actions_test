@@ -36,9 +36,6 @@ workflow:
   name: "$WORKFLOW_NAME"
 
 .pkg_rule:
-  image:
-    name: ${build_image}
-    entrypoint: [""]
   rules:
     - if: >
         $CI_PROJECT_NAME == "pipeline" &&
@@ -73,14 +70,13 @@ trigger_package_build:
   rules:
     - if: $CI_PROJECT_NAME != "pkg_build"
       when: never
-
-    - if: $CI_COMMIT_TAG =~ /^[0-9]+\.[0-9]+\.[0-9]+(-((b|rc)[0-9]+))?$/
+    - if: $CI_COMMIT_TAG =~ /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-((b|rc|hf)([0-9]+)))?$/
       variables:
         WORKFLOW_NAME: "$CI_COMMIT_TAG - $CI_COMMIT_SHORT_SHA"
-
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "develop"
       variables:
         WORKFLOW_NAME: "$CI_COMMIT_BRANCH - $CI_COMMIT_SHORT_SHA"
+
   variables:
     UPSTREAM_PROJECT: $CI_PROJECT_NAME
     UPSTREAM_SHA: $CI_COMMIT_SHA
@@ -93,9 +89,9 @@ trigger_package_build:
 
 build_packages:
   extends: .pkg_rule
-  # image:
-  #   name: ${build_image}
-  #   entrypoint: [""]
+  image:
+    name: ${build_image}
+    entrypoint: [""]
   stage: build_packages
   script: |
     echo "*******************************************"
