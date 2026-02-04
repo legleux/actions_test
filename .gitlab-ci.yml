@@ -35,40 +35,40 @@ variables:
 workflow:
   name: "$WORKFLOW_NAME"
 
-.pkg_rule:
-  rules:
-    - if: >
-        $CI_PROJECT_NAME == "pipeline" &&
-        $CI_PIPELINE_SOURCE =~ /pipeline|web/ &&
-        (
-          $UPSTREAM_BRANCH == "main" ||
-          $UPSTREAM_BRANCH =~ /^release-\d+$/ ||
-          $UPSTREAM_CI_COMMIT_TAG =~ /^\d+\.\d+\.\d+(?:-(?:b|rc)\d+)?$/
-        )
+# .pkg_rule:
+#   rules:
+#     - if: >
+#         $CI_PROJECT_NAME == "pipeline" &&
+#         $CI_PIPELINE_SOURCE =~ /pipeline|web/ &&
+#         (
+#           $UPSTREAM_BRANCH == "main" ||
+#           $UPSTREAM_BRANCH =~ /^release-\d+$/ ||
+#           $UPSTREAM_CI_COMMIT_TAG =~ /^\d+\.\d+\.\d+(?:-(?:b|rc)\d+)?$/
+#         )
 
 stages:
   - trigger
-  - build_packages
+  # - build_packages
   # - build_images
   # - push_image
   # - push_packages
 
-.dind_template: &dind_param
-  before_script: |
-    echo "$DOCKER_PAT" | docker login -u "$DOCKER_USER" --password-stdin
-  variables:
-    docker_driver: overlay2
-    DOCKER_TLS_CERTDIR: ""
-  image:
-    name: docker:latest
-  services:
-    - name: docker:stable-dind
-      alias: docker
+# .dind_template: &dind_param
+#   before_script: |
+#     echo "$DOCKER_PAT" | docker login -u "$DOCKER_USER" --password-stdin
+#   variables:
+#     docker_driver: overlay2
+#     DOCKER_TLS_CERTDIR: ""
+#   image:
+#     name: docker:latest
+#   services:
+#     - name: docker:stable-dind
+#       alias: docker
 
 trigger_package_build:
   stage: trigger
   rules:
-    - if: '$CI_COMMIT_TAG =~ /.+/'
+    - if: $CI_COMMIT_TAG =~ /.+/
       when: always
       variables:
         WORKFLOW_NAME: "$CI_COMMIT_TAG - $CI_COMMIT_SHORT_SHA"
@@ -86,30 +86,30 @@ trigger_package_build:
     project: ripple/xrpledger/pipeline
     strategy: depend
 
-build_packages:
-  extends: .pkg_rule
-  image:
-    name: ${build_image}
-    entrypoint: [""]
-  stage: build_packages
-  script: |
-    echo "*******************************************"
-    echo "UPSTREAM_PROJECT: $UPSTREAM_PROJECT"
-    echo "UPSTREAM_SHA: $UPSTREAM_SHA"
-    echo "UPSTREAM_BRANCH: $UPSTREAM_BRANCH"
-    echo "UPSTREAM_CI_COMMIT_TAG: $UPSTREAM_CI_COMMIT_TAG"
-    echo "*******************************************"
-    echo "CI_PROJECT_NAME: $CI_PROJECT_NAME"
-    echo "CI_COMMIT_SHA: $CI_COMMIT_SHA"
-    echo "CI_COMMIT_BRANCH: $CI_COMMIT_BRANCH"
-    echo "CI_COMMIT_TAG: $CI_COMMIT_TAG"
-    echo "*******************************************"
+# build_packages:
+#   extends: .pkg_rule
+#   image:
+#     name: ${build_image}
+#     entrypoint: [""]
+#   stage: build_packages
+#   script: |
+#     echo "*******************************************"
+#     echo "UPSTREAM_PROJECT: $UPSTREAM_PROJECT"
+#     echo "UPSTREAM_SHA: $UPSTREAM_SHA"
+#     echo "UPSTREAM_BRANCH: $UPSTREAM_BRANCH"
+#     echo "UPSTREAM_CI_COMMIT_TAG: $UPSTREAM_CI_COMMIT_TAG"
+#     echo "*******************************************"
+#     echo "CI_PROJECT_NAME: $CI_PROJECT_NAME"
+#     echo "CI_COMMIT_SHA: $CI_COMMIT_SHA"
+#     echo "CI_COMMIT_BRANCH: $CI_COMMIT_BRANCH"
+#     echo "CI_COMMIT_TAG: $CI_COMMIT_TAG"
+#     echo "*******************************************"
 
-    BRANCH="${UPSTREAM_CI_COMMIT_TAG:-$UPSTREAM_BRANCH}"
-    export FORCE_CLIO_VERSION=${BRANCH}
-    export GITHUB_HEAD_SHA="$UPSTREAM_SHA"
+#     BRANCH="${UPSTREAM_CI_COMMIT_TAG:-$UPSTREAM_BRANCH}"
+#     export FORCE_CLIO_VERSION=${BRANCH}
+#     export GITHUB_HEAD_SHA="$UPSTREAM_SHA"
 
-    # git clone --depth 1 --branch
+#     # git clone --depth 1 --branch
 
   # artifacts:
   #   paths:
