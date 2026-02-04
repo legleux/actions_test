@@ -1,195 +1,278 @@
-default:
-  image: docker:24.0.5-cli
-  services:
-    - docker:24.0.5-dind
-  before_script:
-    - docker info
+variables:
+  REPO:
+    value: "https://github.com/legleux/test_mirror.git"
+    description: "Source repository."
+  BRANCH:
+    value: "main"
+    description: "Branch to build."
+  COMMIT_ID:
+    value: ""
+    description: "Specific commit to build."
+  WORKFLOW_NAME:
+    value: "Mirror update"
+    description: "Default name of the workflow in the WebUI"
+  DRY_RUN:
+    description: "Don't push any artifacts."
+    value: "--no-dry-run"
+    options:
+      - "--dry-run"
+      - "--no-dry-run"
+  COMPONENT:
+    description: 'The repo "component" deployed to'
+    value: "main"
+
+  REGISTRY: "legleux"
+  IMAGE_NAME: "$CI_PROJECT_NAME"
+  IMAGE: ${REGISTRY}/${IMAGE_NAME}
+  DOCKER_BUILDKIT: "1"
+  DOCKER_TLS_CERTDIR: ""
+  dpkg_image: "ghcr.io/xrplf/ci/debian-bookworm:gcc-12"
+  rpm_image: "ghcr.io/xrplf/ci/rhel-9:gcc-12"
+  image:
+    value: "${${PKG}_image}"
+    description: The Docker image to run the build in. ${PKG} is based on the parallel job, either "dpkg" or "rpm" which is mapping to ${dpkg_container} and ${rpm_container} what about ${dpkg_image_tag}
+
+workflow:
+  name: "$WORKFLOW_NAME"
+
+.pkg_rule:
+  image:
+    name: ${build_image}
+    entrypoint: [""]
+  rules:
+    - if: >
+        $CI_PROJECT_NAME == "pipeline" &&
+        $CI_PIPELINE_SOURCE =~ /pipeline|web/ &&
+        $CI_PIPELINE_SOURCE != "push" &&
+        (
+          $UPSTREAM_BRANCH == "main" ||
+          $UPSTREAM_CI_COMMIT_TAG =~ /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-((b|rc|hf)([0-9]+)))?$/
+        )
 
 stages:
+  - trigger
   - build_packages
+  - build_images
   # - push_image
-  # - sign_packages
-  # - smoketest
-  # - push_to_test
-  # - verify_from_test
-  # - push_to_prod
-  # - verify_from_prod
-  # - get_prod_hashes
-
-variables:
-  ARTIFACTORY_HOST: "artifactory.ops.ripple.com/"
-  # ARTIFACTORY_HOST is also the docker registry in Corp Artifactory
-  ARTIFACTORY_HUB: "artifactory.ops.ripple.com:6555"
-  GIT_SIGN_PUBKEYS_URL: https://gitlab.ops.ripple.com/xrpledger/rippled-packages_old/snippets/49/raw
-  PUBLIC_REPO_ROOT: "https://repos.ripple.com/repos"
-  # public_image_registry: "rippleci"
-  # Images defined from variables in GitLab settings.
-
-  # build_image:
-  #   value: "${${PKG}_container_fullname}"
-  #   description: The Docker image to run the build in. ${PKG} is based on the parallel job, either "dpkg" or "rpm" which is mapping to ${dpkg_container} and ${rpm_container} what about ${dpkg_image_tag}
-  src_url:
-    value: "https://github.com/XRPLF/rippled.git"
-    description: The source repository
-  branch: "develop"
-  private_component:
-    value: ""
-    description: "If defined, packages are pushed to this repo instead of release/dev"
-
-.template_only_primary: &only_primary
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ /^(main)$/'
-
-.template_smoketest: &smoketest
-  tags:
-    - xlarge
-
-.template_smoketest_local: &smoketest_local
-  allow_failure: false
-  <<: *smoketest
-  script: . ./gitlab-ci/smoketest.sh local
-
-.template_smoketest_repo: &smoketest_repo
-  allow_failure: false
-  <<: *smoketest
-  script: . ./gitlab-ci/smoketest.sh repo
+  # - push_packages
 
 .dind_template: &dind_param
-  # rules:
-    # - if: $CI_PROJECT_NAME == "pkg-push-test" && $CI_PIPELINE_SOURCE =~ "pipeline|web"
   before_script: |
-    docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+    echo "$DOCKER_PAT" | docker login -u "$DOCKER_USER" --password-stdin
   variables:
     docker_driver: overlay2
     DOCKER_TLS_CERTDIR: ""
   image:
-    name: artifactory.ops.ripple.com/docker:latest
-    # name: docker:latest
+    name: docker:latest
   services:
-    # workaround for TLS issues - consider going back
-    # back to unversioned `dind` when issues are resolved
-    # https://about.gitlab.com/blog/2019/07/31/docker-in-docker-with-docker-19-dot-03/
-    # - name: artifactory.ops.ripple.com/docker:stable-dind
     - name: docker:stable-dind
       alias: docker
-  tags:
-    - 4xlarge
 
-# get_rippled:
-#   stage: build_packages
-#   image: alpine:3
-#   script: |
-#     set -x
-#     apk add git
-#     git clone --depth 1 --branch develop https://github.com/xrplf/rippled
-#     cd rippled && git checkout develop
-#     git fetch --tags
-#     rippled_git_hash=$(git rev-parse HEAD) && echo $rippled_git_hash
-#     git_tag=$(git tag --points-at HEAD)
-#     cd ..
-#     echo "rippled_git_hash=$rippled_git_hash" >> build.env
-#     echo "rippled_branch=$rippled_branch" >> build.env
-#     if [ -n "${git_tag}" ]; then
-#         echo "We're tagged ${git_tag}"
-#         echo "git_tag=$git_tag" >> build.env
-#     fi
-#     cat build.env
-
-  artifacts:
-    paths:
-      - build.env
-
-build_image:
-  stage: build_packages
-  # image: docker:24.0.5-cli
-
-  # services:
-  #   - name: docker:24.0.5-dind
-  #     alias: docker
-  #     command: ["--tls=false"]
-
+trigger_package_build:
+  stage: trigger
+  rules:
+    - if: $CI_PROJECT_NAME != "test-mirror"
+      when: never
+    - if: $CI_COMMIT_TAG =~ /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-((b|rc|hf)([0-9]+)))?$/
+      variables:
+        WORKFLOW_NAME: "$CI_COMMIT_TAG - $CI_COMMIT_SHORT_SHA"
+    - if: $CI_COMMIT_BRANCH == "main"
+      variables:
+        WORKFLOW_NAME: "$CI_COMMIT_BRANCH - $CI_COMMIT_SHORT_SHA"
   variables:
-    DOCKER_BUILDKIT: "1"
-    # DOCKER_HOST: tcp://docker:2375
-    # DOCKER_TLS_CERTDIR: "/certs"
-    # DOCKER_DRIVER: overlay2
+    UPSTREAM_PROJECT: $CI_PROJECT_NAME
+    UPSTREAM_SHA: $CI_COMMIT_SHA
+    UPSTREAM_SHORT_SHA: $CI_COMMIT_SHORT_SHA
+    UPSTREAM_BRANCH: $CI_COMMIT_BRANCH
+    UPSTREAM_CI_COMMIT_TAG: $CI_COMMIT_TAG
+  trigger:
+    project: ripple/xrpledger/pipeline
+    strategy: depend
+
+
+build_packages:
+  extends: .pkg_rule
+  # image:
+  #   name: ${build_image}
+  #   entrypoint: [""]
+  stage: build
   script: |
-    echo "DOCKER_HOST=$DOCKER_HOST"
-    getent hosts docker
-    nc -zv docker 2375 || true
-    docker info
-    docker version
-    docker buildx version || true
-    echo "git_commit=fe9c8d568fcf6ac21483024e01f58962dd5c8260" > ./build.env
+    echo "*******************************************"
+    echo "UPSTREAM_PROJECT: $UPSTREAM_PROJECT"
+    echo "UPSTREAM_SHA: $UPSTREAM_SHA"
+    echo "UPSTREAM_BRANCH: $UPSTREAM_BRANCH"
+    echo "UPSTREAM_CI_COMMIT_TAG: $UPSTREAM_CI_COMMIT_TAG"
+    echo "*******************************************"
+    echo "CI_PROJECT_NAME: $CI_PROJECT_NAME"
     echo "CI_COMMIT_SHA: $CI_COMMIT_SHA"
-    echo "CI_COMMIT_REF_NAME: $CI_COMMIT_REF_NAME"
     echo "CI_COMMIT_BRANCH: $CI_COMMIT_BRANCH"
     echo "CI_COMMIT_TAG: $CI_COMMIT_TAG"
-    echo "CI_COMMIT_TIMESTAMP: $CI_COMMIT_TIMESTAMP"
-    echo "CI_PIPELINE_NAME: $CI_PIPELINE_NAME"
-    echo "CI_PIPELINE_SOURCE: $CI_PIPELINE_SOURCE"
-    echo "GITLAB_CI: $GITLAB_CI"
-    echo "CI_COMMIT_REF_PROTECTED: $CI_COMMIT_REF_PROTECTED"
-    echo "CI_COMMIT_REF_SLUG: $CI_COMMIT_REF_SLUG"
-    echo "CI_COMMIT_SHORT_SHA: $CI_COMMIT_SHORT_SHA"
-    echo "CI_COMMIT_TITLE: $CI_COMMIT_TITLE"
-    #####
-    echo "CI_UPSTREAM_PROJECT_ID: $CI_UPSTREAM_PROJECT_ID"
-    echo "CI_UPSTREAM_JOB_ID: $CI_UPSTREAM_JOB_ID"
-    echo "CI_UPSTREAM_PIPELINE_ID: $CI_UPSTREAM_PIPELINE_ID"
-    #####
-    echo "CI_DEFAULT_BRANCH: $CI_DEFAULT_BRANCH"
-    echo "CI_DEFAULT_BRANCH_SLUG: $CI_DEFAULT_BRANCH_SLUG"
-    echo "CI_JOB_ID: $CI_JOB_ID"
-    echo "CI_JOB_IMAGE: $CI_JOB_IMAGE"
-    echo "CI_JOB_MANUAL: $CI_JOB_MANUAL"
-    echo "CI_JOB_NAME_SLUG: $CI_JOB_NAME_SLUG"
-    echo "CI_JOB_STAGE: $CI_JOB_STAGE"
-    . ./build.env
-    echo "rippled_git_hash=${rippled_git_hash}"
-    echo "rippled_branch=${rippled_branch}"
+    echo "*******************************************"
 
-    if [ -n "${git_tag}" ]; then
-        echo "git_tag=$git_tag"
-    fi
-    docker build .
-    # cd ./push_docker_image && . ./build_image.sh
-  parallel:
-    matrix:
-      - ARCH: amd
-        RUNNER_TAG: docker-4xlarge
-      - ARCH: arm
-        RUNNER_TAG: arm
-  tags:
-    - ${RUNNER_TAG}
+    BRANCH="${UPSTREAM_CI_COMMIT_TAG:-$UPSTREAM_BRANCH}"
+    export FORCE_CLIO_VERSION=${BRANCH}
+    export GITHUB_HEAD_SHA="$UPSTREAM_SHA"
 
-# build_packages:
-#   timeout: 1h 30m
-#   stage: build_packages
-#   image:
-#     name: ghcr.io/xrplf/ci/ubuntu-jammy:gcc-12
+    # git clone --depth 1 --branch
 
-#     # name: ${build_image}
-#     entrypoint: [""]
+  # artifacts:
+  #   paths:
+  #     - build/${PKG}-${ARCH}/packages
+  #     - image_bins/
+  #   reports:
+  #       dotenv: build.env
+  # parallel:
+  #   matrix:
+  #     - ARCH: amd
+  #       RUNNER_TAG: docker-4xlarge
+  #       PKG: rpm
+  #       PKG_TYPE: rpm
+  #     - ARCH: arm
+  #       RUNNER_TAG: arm
+  #       PKG: rpm
+  #       PKG_TYPE: rpm
+  #     - ARCH: amd
+  #       RUNNER_TAG: docker-4xlarge
+  #       PKG: dpkg
+  #       PKG_TYPE: deb
+  #     - ARCH: arm
+  #       RUNNER_TAG: arm
+  #       PKG: dpkg
+  #       PKG_TYPE: deb
+  # tags:
+  #   - ${RUNNER_TAG}
+
+# build_image:
+#   stage: build_images
+#   needs:
+#     - job: get_git_info
+#       artifacts: true
+#   <<: *dind_param
 #   script: |
-#     set -x
-#     echo $CI_COMMIT_REF_NAME
-#     git clone --depth 1 ${rippled_url} rippled
-#     cd rippled && git checkout ${rippled_branch}
-#     rippled_git_hash=$(git rev-parse HEAD) && echo $rippled_git_hash && cd ..
-#     echo "rippled_git_hash=$rippled_git_hash" >> $CI_PROJECT_DIR/build.env
+#     set -ex
+#     apk add --no-cache \
+#       bash \
+#       busybox-extras \
+#       coreutils \
+#       jq \
+#         >/dev/null
+#     echo "== env DOCKER_* =="
+#     env | grep -E '^DOCKER' || true
 
-#   tags:
-#     - 4xlarge
-#   artifacts:
-#     paths:
-#       - build/${PKG}/packages
-#     reports:
-#         dotenv: build.env
+#     echo "== resolve docker =="
+#     getent hosts docker || true
+
+#     echo "== probe ports =="
+
+#     nc -zv docker 2375 || true
+#     nc -zv docker 2376 || true
+
+#     echo "== docker context/endpoints =="
+#     docker context ls || true
+#     docker context inspect default --format '{{json .Endpoints}}' || true
+
+#     echo "== docker version/info =="
+#     docker version --format 'client={{.Client.APIVersion}} server={{.Server.APIVersion}}' || true
+#     docker info || true
+#     getent hosts docker || true
+#     nc -zv docker 2375 || true
+#     docker info
+#     docker version --format 'client={{.Client.APIVersion}} server={{.Server.APIVersion}}'
+#     echo "CI_COMMIT_SHA: $CI_COMMIT_SHA"
+#     echo "CI_COMMIT_REF_NAME: $CI_COMMIT_REF_NAME"
+#     echo "CI_COMMIT_BRANCH: $CI_COMMIT_BRANCH"
+#     echo "CI_COMMIT_TAG: $CI_COMMIT_TAG"
+#     echo "CI_COMMIT_TIMESTAMP: $CI_COMMIT_TIMESTAMP"
+#     echo "CI_PIPELINE_NAME: $CI_PIPELINE_NAME"
+#     echo "CI_PIPELINE_SOURCE: $CI_PIPELINE_SOURCE"
+#     echo "GITLAB_CI: $GITLAB_CI"
+#     echo "CI_COMMIT_REF_PROTECTED: $CI_COMMIT_REF_PROTECTED"
+#     echo "CI_COMMIT_REF_SLUG: $CI_COMMIT_REF_SLUG"
+#     echo "CI_COMMIT_SHORT_SHA: $CI_COMMIT_SHORT_SHA"
+#     echo "CI_COMMIT_TITLE: $CI_COMMIT_TITLE"
+#     #####
+#     echo "CI_UPSTREAM_PROJECT_ID: $CI_UPSTREAM_PROJECT_ID"
+#     echo "CI_UPSTREAM_JOB_ID: $CI_UPSTREAM_JOB_ID"
+#     echo "CI_UPSTREAM_PIPELINE_ID: $CI_UPSTREAM_PIPELINE_ID"
+#     #####
+#     echo "CI_DEFAULT_BRANCH: $CI_DEFAULT_BRANCH"
+#     echo "CI_DEFAULT_BRANCH_SLUG: $CI_DEFAULT_BRANCH_SLUG"
+#     echo "CI_JOB_ID: $CI_JOB_ID"
+#     echo "CI_JOB_IMAGE: $CI_JOB_IMAGE"
+#     echo "CI_JOB_MANUAL: $CI_JOB_MANUAL"
+#     echo "CI_JOB_NAME_SLUG: $CI_JOB_NAME_SLUG"
+#     echo "CI_JOB_STAGE: $CI_JOB_STAGE"
+#     ls -l
+#     . ./build.env
+#     echo "git_hash=${git_hash}"
+#     echo "branch=${branch}"
+#     if [ -n "${git_tag}" ]; then
+#         echo "git_tag=$git_tag"
+#     fi
+
+#     export PUSH=true
+#     pwd
+#     ls -la
+#     cd ./push_docker_image
+#     pwd
+#     ls -la
+#     ls -la ../Dockerfile
+#     . ./build_image.sh
+#     cd ..
+#     ls -l
+#     find . -name "Dockerfile.*"
+#     export DOCKER_BUILDKIT
+#     docker buildx version
+#     docker buildx ls
+#     ./build_docker_image.sh
 #   parallel:
 #     matrix:
-#       - PKG:
-#         - 'dpkg'
-#         - 'rpm'
+#       - ARCH: amd
+#         RUNNER_TAG: docker-4xlarge
+#       - ARCH: arm
+#         RUNNER_TAG: arm
+#   tags:
+#     - ${RUNNER_TAG}
 
-# include: "push_docker_image/docker_images.yml"
+# merge_manifests:
+#   stage: push_image
+#   <<: *dind_param
+#   dependencies:
+#     - get_git_info
+#   script: |
+#     apk add curl jq
+#     set -x
+#     cat build.env
+#     . ./build.env
+
+#     echo "git_hash=${git_hash}"
+#     echo "branch=${branch}"
+#     echo "git_tag=${git_tag}"
+
+#     manifest_list=${IMAGE}:${git_hash}
+#     docker manifest create ${manifest_list} \
+#       --amend ${manifest_list}-amd64 \
+#       --amend ${manifest_list}-arm64
+
+#     docker manifest push ${manifest_list}
+#     additional_tags="${branch}"
+
+#     if [ "${branch}" = "master" ] || [ "${branch}" = "main" ]; then
+#         additional_tags="$additional_tags latest"
+#     fi
+#     if [ -n "${git_tag}" ]; then
+#         additional_tags="$additional_tags ${git_tag}"
+#     fi
+#     for t in $additional_tags
+#     do
+#         tag="${tag:+$tag} --tag $IMAGE:$t"
+#     done
+
+#     docker buildx imagetools create ${tag} ${manifest_list}
+
+#     # Delete the arch specific tags
+#     TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d "{\"username\": \"$DOCKER_USER\", \"password\": \"$DOCKER_PAT\"}" https://hub.docker.com/v2/users/login/ | jq -r .token)
+#     for arch in amd arm; do
+#       TAG=${git_hash}-${arch}64
+#       curl -v -H "Authorization: JWT ${TOKEN}" -X DELETE https://hub.docker.com/v2/repositories/${REGISTRY}/${IMAGE_NAME}/tags/${TAG}/
+#     done
