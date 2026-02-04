@@ -73,9 +73,11 @@ trigger_package_build:
   rules:
     - if: $CI_PROJECT_NAME != "pkg_build"
       when: never
-    - if: $CI_COMMIT_TAG =~ /^\d+\.\d+\.\d+(?:-(?:b|rc)\d+)?$/
+
+    - if: $CI_COMMIT_TAG =~ /^[0-9]+\.[0-9]+\.[0-9]+(-((b|rc)[0-9]+))?$/
       variables:
         WORKFLOW_NAME: "$CI_COMMIT_TAG - $CI_COMMIT_SHORT_SHA"
+
     - if: $CI_COMMIT_BRANCH == "main"
       variables:
         WORKFLOW_NAME: "$CI_COMMIT_BRANCH - $CI_COMMIT_SHORT_SHA"
