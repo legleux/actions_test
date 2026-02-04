@@ -39,7 +39,7 @@ workflow:
   rules:
     - if: >
         $CI_PROJECT_NAME == "pipeline" &&
-        $CI_PIPELINE_SOURCE =~ /^(pipeline|web)$/ &&
+        $CI_PIPELINE_SOURCE =~ /pipeline|web/ &&
         (
           $UPSTREAM_BRANCH == "main" ||
           $UPSTREAM_BRANCH =~ /^release-\d+$/ ||
@@ -68,14 +68,13 @@ stages:
 trigger_package_build:
   stage: trigger
   rules:
-    - if: $CI_PROJECT_NAME != "pkg_build"
-      when: never
-    - if: $CI_COMMIT_TAG =~ /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-((b|rc|hf)([0-9]+)))?$/
+    - if: '$CI_COMMIT_TAG =~ /.+/'
+      when: always
       variables:
         WORKFLOW_NAME: "$CI_COMMIT_TAG - $CI_COMMIT_SHORT_SHA"
-    - if: $CI_COMMIT_BRANCH == "develop"
-      variables:
-        WORKFLOW_NAME: "$CI_COMMIT_BRANCH - $CI_COMMIT_SHORT_SHA"
+    # - if: $CI_COMMIT_BRANCH == "main"
+    #   variables:
+    #     WORKFLOW_NAME: "$CI_COMMIT_BRANCH - $CI_COMMIT_SHORT_SHA"
 
   variables:
     UPSTREAM_PROJECT: $CI_PROJECT_NAME
