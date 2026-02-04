@@ -52,7 +52,7 @@ workflow:
 stages:
   - trigger
   - build_packages
-  - build_images
+  # - build_images
   # - push_image
   # - push_packages
 
@@ -95,7 +95,7 @@ build_packages:
   # image:
   #   name: ${build_image}
   #   entrypoint: [""]
-  stage: build
+  stage: build_packages
   script: |
     echo "*******************************************"
     echo "UPSTREAM_PROJECT: $UPSTREAM_PROJECT"
